@@ -1,0 +1,295 @@
+.admin-book-page {
+  min-height: 100vh;
+  background: #f3f4f8;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1c2430;
+}
+
+.admin-book-topbar {
+  height: 72px;
+  background: #223147;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.admin-book-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.admin-book-brand__dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #f2f2f2;
+}
+
+.admin-book-menu-btn {
+  width: 42px;
+  height: 42px;
+  background: transparent;
+  border: none;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.admin-book-menu-btn span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  margin-left: auto;
+  background: #ffffff;
+  border-radius: 999px;
+}
+
+.admin-book-content {
+  padding: 22px 24px 28px;
+}
+
+.admin-book-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.admin-book-heading h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.admin-book-heading p {
+  margin: 0;
+  color: #6e7786;
+  font-size: 13px;
+}
+
+.admin-book-add-btn {
+  background: #223147;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(34, 49, 71, 0.14);
+}
+
+.admin-book-panel {
+  background: #ffffff;
+  border: 1px solid #e5e7ef;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  padding: 14px;
+}
+
+.admin-book-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.admin-book-search {
+  flex: 1;
+  max-width: 520px;
+  position: relative;
+}
+
+.admin-book-search__icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9aa3b2;
+  font-size: 14px;
+}
+
+.admin-book-search input {
+  width: 100%;
+  height: 38px;
+  border: 1px solid #d8dce6;
+  border-radius: 8px;
+  padding: 0 14px 0 34px;
+  font-size: 13px;
+  background: #fbfbfd;
+  outline: none;
+}
+
+.admin-book-search input:focus {
+  border-color: #e0bc2d;
+}
+
+.admin-book-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-book-sort-btn,
+.admin-book-filter-btn {
+  height: 38px;
+  min-width: 102px;
+  border: none;
+  border-radius: 8px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.admin-book-sort-btn {
+  background: #f4c72d;
+  color: #1b2431;
+}
+
+.admin-book-filter-btn {
+  background: #f4c72d;
+  color: #1b2431;
+}
+
+.admin-book-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #ebedf3;
+  border-radius: 10px;
+}
+
+.admin-book-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 820px;
+}
+
+.admin-book-table th {
+  background: #f9fafc;
+  color: #232d3d;
+  font-size: 12px;
+  text-align: left;
+  padding: 12px 10px;
+  border-bottom: 1px solid #eceff5;
+}
+
+.admin-book-table td {
+  padding: 12px 10px;
+  font-size: 12px;
+  border-bottom: 1px solid #f0f2f7;
+  vertical-align: middle;
+}
+
+.admin-book-cover {
+  width: 38px;
+  height: 52px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid #e5e7ef;
+}
+
+.admin-book-title-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-book-title-cell strong {
+  font-size: 13px;
+}
+
+.admin-book-title-cell span {
+  color: #7a8495;
+  font-size: 11px;
+}
+
+.admin-book-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.admin-book-row-actions button {
+  border: none;
+  background: #f6f7fb;
+  color: #223147;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.admin-book-empty {
+  text-align: center;
+  padding: 30px 12px;
+  color: #7a8495;
+}
+
+.admin-book-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 12px;
+  color: #6f7888;
+  font-size: 12px;
+}
+
+.admin-book-pagination {
+  display: flex;
+  gap: 6px;
+}
+
+.admin-book-pagination button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9dce5;
+  background: #ffffff;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.admin-book-pagination button.is-active {
+  background: #223147;
+  color: #ffffff;
+  border-color: #223147;
+}
+
+@media (max-width: 768px) {
+  .admin-book-content {
+    padding: 18px;
+  }
+
+  .admin-book-heading,
+  .admin-book-toolbar,
+  .admin-book-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-book-search {
+    max-width: none;
+  }
+
+  .admin-book-actions {
+    width: 100%;
+  }
+
+  .admin-book-sort-btn,
+  .admin-book-filter-btn,
+  .admin-book-add-btn {
+    width: 100%;
+  }
+
+  .admin-book-pagination {
+    justify-content: flex-start;
+  }
+}

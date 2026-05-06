@@ -1,0 +1,381 @@
+.detail-container {
+  padding-top: 74px;
+  padding-left: 20px;
+  padding-right: 30px;
+  font-family: Arial, sans-serif;
+}
+
+.back-btn {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    cursor: pointer;
+    z-index: 999;
+}
+
+.detail-top {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.detail-cover {
+  width: 350px;
+  border-radius: 10px;
+  position: relative;
+  margin-left: 100px;
+  z-index: 2;    
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);      
+}
+
+.detail-info {
+  flex: 1;
+  position: relative;
+}
+
+.detail-info h2 {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.detail-author {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.detail-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.status {
+  background: #f5d5d5ff;
+  color: #7b2e2eff;
+  padding: 5px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.genre-row {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.genre {
+  background: #eee;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  transition: 0.2s;
+}
+
+.genre:hover {
+  background: #dcdcdc;
+  cursor: pointer;
+}
+
+.bookmark-btn {
+  position: absolute;
+  right: 0;
+  top: 5px;
+  cursor: pointer;
+}
+
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin: -200px 490px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.tab-btn {
+  padding: 10px 30px;
+  border-radius: 12px;
+  border: 2px solid #ddd;
+  background: white;
+  display: flex;
+  gap: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  color: #222;
+  position: relative;
+  margin-top: -165px;
+  margin-left: 20px;
+  z-index: 3;
+  font-size: px;
+  text-align: justify;
+}
+
+.tab-btn svg {
+  color: #555;
+}
+
+.tab-btn.active {
+  background: #f1c232;
+  border-color: #f1c232;
+  color: #ffffff;
+  margin-top: -175px;
+}
+
+.tab-btn.active svg {
+  color: #ffffff;
+}
+
+.tab-btn:hover {
+  opacity: 0.9;
+}
+
+.content-box {
+    background: #162b45;
+    color: white;
+    position: relative;
+    width: 83%;
+    margin-left: 300px;
+    border-radius: 0;
+    z-index: 1;
+}
+
+.normal-mode {
+    padding: 60px;
+    margin-top: -200px;    /* Sesuaikan biar pas */
+    min-height: 473px;     /* Tinggi gabungan sinopsis/info */
+}
+
+.ulasan-mode {
+    padding: 30px 50px 25px;
+    margin-top: -200px;    /* Turunin sedikit biar ulasan tidak kepotong */
+    min-height: 10px;     /* Tinggi lebih besar untuk daftar ulasan */
+    overflow-y: visible;   /* Biar tidak muncul scrollbar */
+    padding-top: px;
+    padding-bottom: 68px;
+}
+
+.sinopsis {
+  width: 60%;
+  margin-left: 150px;
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+.info-grid {
+  padding-left: 150px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  font-size: 14px;
+}
+
+.read-btn {
+  position: absolute;
+  right: 50px;
+  bottom: 40px;
+  padding: 20px 42px;
+  background: #d7a220;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.ulasan-wrapper {
+  padding-left: 130px;
+  padding-right: 40px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ulasan-item {
+  margin-bottom: 25px;
+}
+
+.ulasan-header {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 8px;
+}
+
+.profile-circle {
+  width: 38px;
+  height: 38px;
+  background: #cfcfcf;
+  border-radius: 50%;
+}
+
+.profile-circle.small {
+  width: 28px;
+  height: 28px;
+}
+
+.nama {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.rating-small {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.komentar {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 5px;
+}
+
+.ulasan-actions {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.like,
+.balasan-toggle {
+  cursor: pointer;
+}
+
+.balasan-toggle:hover {
+  text-decoration: underline;
+}
+
+.balasan-list {
+  margin-left: 50px;
+  margin-top: 10px;
+}
+
+.balasan-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.balasan-input {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.balasan-input input {
+  flex: 1;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: none;
+}
+
+.balasan-input button {
+  background: #f1c232;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.ulasan-input-box {
+  background: #0f1f33;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  margin-right: 10px;
+}
+
+.label-ulasan {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* RATING SELECTOR INPUT */
+.rating-selector {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.rating-star:hover {
+  transform: scale(1.1);
+}
+
+/* TEXTAREA ULASAN */
+.input-ulasan {
+  width: 100%;
+  height: 90px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  resize: none;
+  margin-bottom: 12px;
+}
+
+.kirim-ulasan-btn {
+  background: #f1c232;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* === WRAPPER ULASAN (scroll smooth) === */
+/* AREA ULASAN */
+.ulasan-wrapper {
+  max-height: 375px;     /* tinggi kotak ulasan */
+  overflow-y: auto;      /* scroll hanya vertikal */
+  overflow-x: hidden;    /* HILANGKAN scroll horizontal */
+  padding-right: 10px;   /* biar isi tidak ketutup scrollbar */
+}
+
+/* SCROLLBAR TIPIS */
+.ulasan-wrapper::-webkit-scrollbar {
+  width: 6px;      /* tipisin */
+}
+
+.ulasan-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 10px;
+}
+
+.ulasan-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ulasan-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.ulasan-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+/* ============================== */
+/* 🔔 NOTIFIKASI BOOKMARK */
+/* ============================== */
+.toast-notif {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 24px;
+  background: rgba(20, 27, 45, 0.95);
+  color: white;
+  border-radius: 8px;
+  border-left: 4px solid #f1c232;
+  font-size: 14px;
+  z-index: 9999;
+  -webkit-backdrop-filter: blur();
+  backdrop-filter: blur(6px);
+  animation: toastFade 2s ease forwards;
+}
+
+@keyframes toastFade {
+  0% { opacity: 0; transform: translate(-50%, -10px); }
+  10% { opacity: 1; transform: translate(-50%, 0); }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -10px); }
+}

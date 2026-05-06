@@ -1,0 +1,67 @@
+.book-row-container {
+  margin-top: 30px;
+  padding: 0 25px;
+}
+
+.row-title h2 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.book-row {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 15px 40px 15px 0;
+  scroll-behavior: smooth;
+  align-items: center;
+}
+
+.book-row::-webkit-scrollbar {
+  display: none;
+}
+
+.lihat-semua-scroll {
+  flex-shrink: 0;
+  margin-left: 30px;
+  margin-right: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  opacity: 0.7;
+  cursor: pointer;
+  pointer-events: auto;
+  white-space: nowrap;
+}
+
+.lihat-semua-scroll:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.lihat-semua {
+  font-size: 14px;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.lihat-semua:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.book-row.dragging {
+  cursor: -webkit-grabbing;
+  cursor: grabbing;
+  -webkit-user-select: auto;
+  user-select: none;
+}
+
+.book-row {
+  cursor: grab;
+}
+
+.book-row:active {
+  cursor: grabbing;
+}

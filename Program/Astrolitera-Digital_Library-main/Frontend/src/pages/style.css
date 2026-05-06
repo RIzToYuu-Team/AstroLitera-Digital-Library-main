@@ -1,0 +1,80 @@
+/* GENERAL */
+.page-container {
+  width: 100%;
+  min-height: 100vh;
+  background: #22303f;
+  padding-bottom: 30px;
+}
+
+/* HEADER */
+.page-header {
+  background: #141b2d;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.page-header h1 {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.back-icon {
+  cursor: pointer;
+}
+
+/* CARD CONTENT */
+.fancy-card {
+  background: white;
+  margin: 25px;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.section-icon {
+  margin-bottom: 10px;
+  color: #1f3a93;
+}
+
+/* Divider */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: #ddd;
+  margin: 20px 0;
+}
+
+/* CONTACT */
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  font-size: 16px;
+}
+
+.contact-note {
+  margin-top: 20px;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* POLICY */
+.policy-list {
+  margin-left: 20px;
+  line-height: 1.6;
+}
+
+.policy-footer {
+  margin-top: 15px;
+  font-size: 14px;
+  opacity: 0.8;
+}

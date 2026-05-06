@@ -1,0 +1,74 @@
+.kategori-container {
+  padding: 22px 25px;
+}
+
+.kategori-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+  margin-top: -20px;
+  gap: 14px;
+}
+
+.kategori-title {
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.view-buttons {
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: #e4e4e5ff; 
+  margin-top: 55px;
+  margin-left: auto;
+}
+
+.view-icon {
+  cursor: pointer;
+  opacity: .45;
+  transition: .2s;
+}
+
+.view-icon.active {
+  opacity: 1;
+  color: #f4c521;
+}
+
+/* GRID MODE */
+.kategori-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0px;
+}
+
+/* LIST MODE */
+.kategori-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .kategori-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.back-button {
+  background: #f2f2f2;
+  border: none;
+  border-radius: 12px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.rekomendasi-text {
+  font-size: 18px;
+  font-weight: 600;
+  margin-left: 6px;
+}

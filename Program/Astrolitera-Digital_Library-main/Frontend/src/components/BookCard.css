@@ -1,0 +1,226 @@
+/* GRID MODE */
+.book-card {
+  position: relative;
+  width: 150px;
+  background: white;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.book-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.book-cover {
+  width: 100%;
+  height: 180px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.book-card.list-mode{
+  width: 100%;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 20px;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.12);
+}
+
+/* COVER LIST MODE */
+.book-card.list-mode .book-cover {
+  width: 130px;
+  height: 175px;
+  grid-row: 1 / span 2;
+}
+
+.book-card.list-mode .sinopsis {
+  text-align: left;
+  margin: 0;
+}
+
+/* CONTENT AREA */
+.book-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* GENRE */
+.genre-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.genre-tag {
+  background: #eee;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* RATING LIST */
+.list-rating {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.sinopsis {
+  font-size: 13px;
+  opacity: .85;
+  margin-top: 6px;
+  margin-right: px;
+  line-height: 1.5;
+}
+
+.book-row .book-card {
+  min-width: 150px !important;
+}
+
+.book-row {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.book-row img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: none;
+}
+
+.lihat-semua-scroll {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.lihat-semua-scroll.visible {
+  opacity: 0.7;
+  pointer-events: auto;
+}
+
+.book-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-author {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-card.list-mode .sinopsis {
+  text-align: left;
+  margin: 0;
+}
+
+.book-card.list-mode .book-info {
+  gap: 4px;
+}
+
+.book-card.list-mode {
+  align-items: start;
+}
+
+.book-card.list-mode .book-cover {
+  width: 120px;
+  height: 160px;
+}
+
+/* ==========================
+   LIST MODE FIX (RAPIH)
+   - Hindari layout yang "ngelompat" dengan grid auto-placement
+   - Pakai flex: cover kiri, konten kanan (info + sinopsis) sejajar
+   ========================== */
+
+/* container kanan (info + sinopsis) */
+.book-content {
+  min-width: 0; /* penting biar text ellipsis/line-clamp jalan */
+}
+
+.book-card.list-mode {
+  width: 100%;
+  display: flex;
+  gap: 20px;
+  padding: 18px;
+  border-radius: 14px;
+  align-items: flex-start;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.book-card.list-mode .book-cover {
+  flex: 0 0 auto;
+  width: 120px;
+  height: 160px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.book-card.list-mode .book-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.book-card.list-mode .book-info {
+  gap: 6px;
+}
+
+.book-card.list-mode .sinopsis {
+  text-align: left;
+  margin: 0;
+}
+
+
+
+/* BOOKMARK BUTTON (Grid & List) */
+.bookmark-btn {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 10px;
+  color: #f4c521;           /* kuning */
+  opacity: 0.95;
+  transition: 0.2s ease;
+  z-index: 2;
+}
+
+.bookmark-btn:hover {
+  background: rgba(244, 197, 33, 0.12);
+}
+
+.bookmark-btn.active svg {
+  fill: #f4c521;            /* isi kuning saat disimpan */
+}
+
+.bookmark-btn--list {
+  top: 12px;
+  right: 12px;              /* posisi kanan atas (foto list) */
+}
+
+.bookmark-btn--grid {
+  bottom: 10px;
+  right: 10px;              /* posisi kanan bawah (foto grid) */
+}

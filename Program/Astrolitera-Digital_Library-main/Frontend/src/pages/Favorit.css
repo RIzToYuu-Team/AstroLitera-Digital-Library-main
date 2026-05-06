@@ -1,0 +1,92 @@
+/* Favorit page layout (keep isolated) */
+.favorit-page {
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+/* small tweaks so SearchResult controls fit under Header */
+.favorit-controls {
+  border-bottom: none;
+}
+
+.favorit-body {
+  padding-top: 0;
+}
+
+.favorit-main {
+  flex: 1;
+}
+
+/* Results container */
+.favorit-list.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+
+.favorit-list.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Empty state */
+.favorit-empty{
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  text-align: center;
+}
+
+.favorit-main{
+  flex: 1;
+  min-height: calc(100vh - 160px);
+}
+
+/* hanya saat kosong -> center */
+.favorit-main.is-empty{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* saat ada buku -> normal */
+.favorit-main.has-books{
+  display: block;
+}
+
+.favorit-empty-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.favorit-primary {
+  margin: 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 10px;
+  background: #fbbf24;
+  color: #111827;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.favorit-secondary {
+  height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 10px;
+  background: #111827;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}

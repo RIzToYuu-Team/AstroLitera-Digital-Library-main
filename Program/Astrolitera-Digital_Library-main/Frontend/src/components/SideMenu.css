@@ -1,0 +1,139 @@
+/* Backdrop overlay */
+.side-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 9000;
+}
+
+/* Drawer shell */
+.side-drawer{
+  position: fixed;
+  top: 0;
+  left: -320px;
+  width: 300px;
+  height: 100vh;
+  background: #0d1321;
+  color: #fff;
+  z-index: 9999;
+  transition: left 240ms ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-drawer.open{ left: 0; }
+
+/* Top bar */
+.side-top{
+  padding: 14px 16px;
+  background: #141b2d;
+}
+
+.side-back{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Profile */
+.side-profile{
+  padding: 18px 16px 14px 16px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  background: #141b2d;
+}
+
+.side-avatar{
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.08);
+}
+
+.side-avatar img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.side-user{ display: flex; flex-direction: column; }
+.side-name{
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.side-sub{
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 3px;
+}
+
+.side-divider{
+  height: 2px;
+  background: #d4a017;
+  width: 100%;
+}
+
+/* Menu items */
+.side-nav{
+  padding: 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.side-item{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 8px 6px;
+  text-align: left;
+}
+
+.side-item svg{
+  color: #f0c23a;
+}
+
+.side-item:hover{
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px;
+}
+
+/* Bottom button */
+.side-bottom{
+  margin-top: auto;
+  padding: 18px 18px 24px 18px;
+}
+
+.side-primary{
+  width: 100%;
+  padding: 14px 0;
+  background: #f0c23a;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  color: #111827;
+}
+
+.side-primary:hover{
+  background: #ddb22f;
+}

@@ -1,0 +1,67 @@
+.forgot-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.forgot-modal {
+  width: 480px;
+  background: white;
+  border-radius: 18px;
+  padding: 26px 34px 32px;
+  position: relative;
+  text-align: center;
+}
+
+.close-btn {
+  position: absolute;
+  right: 18px;
+  top: 16px;
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.forgot-img img {
+  width: 230px;
+  margin-bottom: 12px;
+}
+
+.forgot-desc {
+  margin-top: 4px;
+  margin-bottom: 16px;
+  color: #6b7280;
+}
+
+form {
+  display: grid;
+  gap: 10px;
+}
+
+input {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+}
+
+.forgot-btn {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+.forgot-back {
+  margin-top: 10px;
+  color: #2563eb;
+  cursor: pointer;
+}
+

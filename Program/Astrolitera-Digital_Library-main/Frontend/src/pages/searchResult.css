@@ -1,0 +1,241 @@
+/* ===== Page wrapper ===== */
+.search-page {
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+/* ===== Header ===== */
+.search-topbar {
+  background: linear-gradient(135deg, #1f2b3a, #243447);
+  padding: 14px 18px;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.16);
+}
+
+.search-topbar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-back {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-title {
+  font-weight: 700;
+  font-size: 18px;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+
+.search-input-wrap {
+  width: 500px;
+  max-width: 100%;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  padding: 20px 20px;
+  border-radius: 10px;
+  height: 42px;
+}
+
+.search-input-wrap input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: black;
+  font-size: 14px;
+}
+
+.search-input-wrap input::placeholder {
+  color: black;
+  opacity: 0.6;
+}
+
+.search-icon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  color: #111827;
+  opacity: 0.8;
+  display: block;
+}
+
+/* ===== Controls bar ===== */
+.search-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  padding: 12px 18px;
+  background: #f3f4f6;
+}
+
+.search-view-buttons {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 12px;
+  background: #e4e4e5ff;
+  border: none;
+}
+
+.search-view-btn {
+  width: 38px;
+  height: 34px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  opacity: 0.45;
+  color: #111827;
+  transition: 0.2s;
+}
+
+.search-view-btn.active {
+  opacity: 1;
+  color: #f4c521;
+  background: transparent;
+}
+
+.search-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-sort select {
+  border-radius: 10px;
+  border: none;
+  height: 34px;
+  padding: 0 12px;
+  outline: none;
+  font-weight: 600;
+}
+
+.search-filter-btn {
+  border-radius: 10px;
+  border: none;
+  height: 34px;
+  padding: 0 14px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #fbbf24;
+}
+
+/* ===== Body layout ===== */
+.search-body {
+  display: flex;
+  gap: 18px;
+  padding: 0 18px 18px;
+  align-items: flex-start;
+}
+
+/* Sidebar filter panel */
+.search-filter-panel {
+  width: 300px;
+  min-height: 70vh;
+  background: #3f556b; /* match desain kamu */
+  border-radius: 0;
+  padding: 18px 16px;
+  color: white;
+}
+
+/* Accordion group */
+.filter-group {
+  margin-bottom: 22px;
+}
+
+.filter-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border: none;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.filter-chevron {
+  transition: transform 180ms ease;
+  opacity: 0.9;
+}
+
+.filter-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* Options container */
+.filter-body {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-body--text {
+  gap: 8px;
+}
+
+/* Pills like screenshot */
+.filter-pill {
+  border: 1.5px solid rgba(255,255,255,0.75);
+  background: transparent;
+  color: white;
+  border-radius: 14px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.filter-pill.active {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.95);
+}
+
+.filter-placeholder {
+  opacity: 0.8;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Results area */
+.search-content {
+  flex: 1;
+  padding: 18px 4px;
+  min-width: 0;
+}
+
+.search-empty {
+  padding: 24px;
+  text-align: center;
+  color: #374151;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .search-title { display: none; }
+  .search-body { flex-direction: column; }
+  .search-filter-panel { width: 100%; }
+}

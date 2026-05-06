@@ -1,0 +1,162 @@
+.aktivitas-page{
+  min-height: 100vh;
+  background: #f3f5fb;
+}
+
+.aktivitas-wrap{
+  width: min(980px, 92%);
+  margin: 0 auto;
+  padding: 28px 0 60px;
+}
+
+.aktivitas-title{
+  margin: 10px 0 14px;
+  font-size: 34px;
+  font-weight: 800;
+  color: #1f2a37;
+}
+
+.aktivitas-tabs{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  padding: 10px 0 16px;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+
+.aktivitas-tabs button{
+  border: none;
+  background: rgba(31,42,55,.06);
+  color: #1f2a37;
+  height: 34px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor:pointer;
+}
+
+.aktivitas-tabs button.active{
+  background: #2f49b9;
+  color: #fff;
+}
+
+.aktivitas-list{
+  margin-top: 18px;
+  display:flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.aktivitas-card{
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 12px;
+  padding: 14px;
+  display:flex;
+  gap: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.06);
+}
+
+.aktivitas-cover{
+  width: 88px;
+  height: 120px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex: 0 0 auto;
+  background: #eaeef8;
+}
+
+.aktivitas-info{
+  flex: 1;
+  min-width: 0;
+}
+
+.aktivitas-booktitle{
+  margin: 2px 0 6px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1f2a37;
+}
+
+.aktivitas-sub{
+  color: #6b7280;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
+.aktivitas-status{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.aktivitas-status.st-wait{ color: #d97706; }
+.aktivitas-status.st-ok{ color: #16a34a; }
+.aktivitas-status.st-no{ color: #dc2626; }
+
+.aktivitas-actions{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.act-btn{
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor:pointer;
+  border: none;
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+}
+
+.act-read{
+  background: #2f49b9;
+  color: #fff;
+}
+
+.act-cancel{
+  background: rgba(31,42,55,.06);
+  color: #1f2a37;
+}
+
+.act-rereq{
+  background: rgba(47,73,185,.12);
+  color: #2f49b9;
+}
+
+.aktivitas-empty{
+  background: #fff;
+  border: 1px dashed rgba(0,0,0,.18);
+  border-radius: 12px;
+  padding: 22px;
+  color: #6b7280;
+  text-align:center;
+}
+
+.activity-search {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.activity-search input {
+  width: 100%;
+  max-width: 420px;
+  height: 38px;
+  border: 1px solid #d8dce6;
+  border-radius: 8px;
+  padding: 0 14px;
+  font-size: 13px;
+  outline: none;
+  background: #fbfbfd;
+}
+
+.activity-search input:focus {
+  border-color: #e0bc2d;
+}
