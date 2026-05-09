@@ -39,12 +39,11 @@ function Login() {
         .from("profiles")
         .select("*")
         .eq("email", form.email)
-        .eq("status", "Diterima")
-        .eq("role", ["Siswa", "Admin"])
+        .in("role", ["Siswa", "Admin"])
         .single();
 
       if (error || !data) {
-        showToast?.("error", "Email tidak ditemukan!");
+        showToast?.("error", "Akun tidak ditemukan!");
         return;
       }
 
@@ -54,7 +53,7 @@ function Login() {
       }
 
       if (data.status !== "Diterima") {
-        showToast?.("error", "Akun anda belum disetujui, mohon hubungi admin perpustakaan.");
+        showToast?.("error", "Akun anda belum disetujui, mohon hubungi admin/");
         return;
       }
       showToast?.("success", "Berhasil Masuk!");

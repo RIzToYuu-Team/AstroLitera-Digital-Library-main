@@ -29,7 +29,7 @@ export default function ForgotPass1({ onClose }) {
         .single();
 
       if (error || !data) {
-        showToast?.("error", "Akun tidak ditemukan!");
+        showToast?.("error", "Akun tidak ditemukan! Mohon masukkan data yang lengkap");
         return;
       }
 
