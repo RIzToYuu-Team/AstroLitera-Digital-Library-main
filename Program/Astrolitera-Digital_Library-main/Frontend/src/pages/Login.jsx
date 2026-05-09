@@ -62,6 +62,8 @@ function Login() {
         "sessionUser",
         JSON.stringify({
           id: data.id,
+          nis: data.nis,
+          email: data.email,
           username: data.username,
           role: data.role,
           status: data.status,

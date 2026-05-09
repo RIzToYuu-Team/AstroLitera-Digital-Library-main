@@ -5,13 +5,13 @@ import SideMenu from "../components/SideMenu";
 import defaultAvatar from "../assets/default-avatar.jpg";
 import { BadgeCheck, Camera, Eye, EyeOff } from "lucide-react";
 import { useToast } from "../components/Toast";
+import { supabase } from "../utils/supabaseClient";
 
 export default function Pengaturan() {
   const showToast = useToast();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Ambil session user (kalau belum login, nanti kamu bisa bikin versi guest)
   const sessionUser = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem("sessionUser") || "null");
@@ -22,12 +22,11 @@ export default function Pengaturan() {
 
   // Form: kosongin value default, pakai placeholder (kecuali kalau ada data dari user)
   const [form, setForm] = useState({
-    namaLengkap: sessionUser?.namaLengkap || "",
-    namaTampilan: sessionUser?.nama || "",
+    namaLengkap: sessionUser?.username || "",
+    email: sessionUser?.email || "",
     nis: sessionUser?.nis || "",
     tanggalLahir: sessionUser?.tanggalLahir || "",
     jenisKelamin: sessionUser?.jenisKelamin || "",
-    password: "", // sengaja kosong; placeholder saja
     fotoProfil: sessionUser?.fotoProfil || "",
   });
 
@@ -63,13 +62,12 @@ export default function Pengaturan() {
     // Simpan ke sessionUser (menu & halaman lain baca dari sini)
     const nextSession = {
       ...(sessionUser || {}),
-      namaLengkap: form.namaLengkap,
-      nama: form.namaTampilan, // nama tampilan dipakai buat SideMenu
+      namaLengkap: form.username,
+      email: form.email, // nama tampilan dipakai buat SideMenu
       nis: form.nis,
       tanggalLahir: form.tanggalLahir,
       jenisKelamin: form.jenisKelamin,
       fotoProfil: form.fotoProfil,
-      // password: form.password (nanti kamu atur logic update password)
     };
 
     localStorage.setItem("sessionUser", JSON.stringify(nextSession));
@@ -165,10 +163,10 @@ export default function Pengaturan() {
                 />
 
                 <Field
-                  label="Nama Tampilan"
-                  value={form.namaTampilan}
-                  placeholder="Masukkan nama tampilan"
-                  onChange={(v) => updateField("namaTampilan", v)}
+                  label="Email"
+                  value={form.email}
+                  placeholder="Masukkan email"
+                  onChange={(v) => updateField("email", v)}
                 />
 
                 <Field
@@ -191,15 +189,6 @@ export default function Pengaturan() {
                   value={form.jenisKelamin}
                   options={["Laki-laki", "Perempuan"]}
                   onChange={(v) => updateField("jenisKelamin", v)}
-                />
-
-                <PasswordField
-                  label="Kata Sandi"
-                  value={form.password}
-                  placeholder="Masukkan kata sandi"
-                  onChange={(v) => updateField("password", v)}
-                  showPassword={showPassword}
-                  onToggle={() => setShowPassword((view) => !view)}
                 />
 
                 <button className="settings-save" onClick={handleSave}>
