@@ -142,15 +142,9 @@
   height: 160px;
 }
 
-/* ==========================
-   LIST MODE FIX (RAPIH)
-   - Hindari layout yang "ngelompat" dengan grid auto-placement
-   - Pakai flex: cover kiri, konten kanan (info + sinopsis) sejajar
-   ========================== */
 
-/* container kanan (info + sinopsis) */
 .book-content {
-  min-width: 0; /* penting biar text ellipsis/line-clamp jalan */
+  min-width: 0;
 }
 
 .book-card.list-mode {
@@ -188,9 +182,6 @@
   margin: 0;
 }
 
-
-
-/* BOOKMARK BUTTON (Grid & List) */
 .bookmark-btn {
   position: absolute;
   display: grid;
@@ -201,7 +192,7 @@
   background: transparent;
   cursor: pointer;
   border-radius: 10px;
-  color: #f4c521;           /* kuning */
+  color: #f4c521;
   opacity: 0.95;
   transition: 0.2s ease;
   z-index: 2;
@@ -212,15 +203,67 @@
 }
 
 .bookmark-btn.active svg {
-  fill: #f4c521;            /* isi kuning saat disimpan */
+  fill: #f4c521;
 }
 
 .bookmark-btn--list {
   top: 12px;
-  right: 12px;              /* posisi kanan atas (foto list) */
+  right: 12px;
 }
 
 .bookmark-btn--grid {
   bottom: 10px;
-  right: 10px;              /* posisi kanan bawah (foto grid) */
+  right: 10px;
+}
+
+@media (max-width: 768px) {
+  .book-card {
+    width: 128px;
+    min-width: 128px;
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .book-cover {
+    height: 155px;
+    border-radius: 8px;
+  }
+
+  .book-title {
+    font-size: 15px;
+    line-height: 1.2;
+  }
+
+  .book-author {
+    font-size: 13px;
+  }
+
+  .list-rating {
+    font-size: 13px;
+  }
+
+  .bookmark-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .book-card {
+    width: 118px;
+    min-width: 118px;
+    padding: 9px;
+  }
+
+  .book-cover {
+    height: 145px;
+  }
+
+  .book-title {
+    font-size: 14px;
+  }
+
+  .book-author {
+    font-size: 12px;
+  }
 }

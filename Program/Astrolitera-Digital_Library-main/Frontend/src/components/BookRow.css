@@ -65,3 +65,46 @@
 .book-row:active {
   cursor: grabbing;
 }
+
+@media (max-width: 768px) {
+  .book-row-container {
+    margin-top: 24px;
+    padding: 0 20px;
+  }
+
+  .row-title h2 {
+    font-size: 30px;
+    margin-bottom: 8px;
+  }
+
+  .book-row {
+    gap: 18px;
+    padding: 12px 8px 14px 0;
+    scroll-snap-type: x mandatory;
+  }
+
+  .book-row .book-card {
+    scroll-snap-align: start;
+  }
+
+  .lihat-semua-scroll {
+    margin-left: 14px;
+    margin-right: 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .book-row-container {
+    margin-top: 22px;
+    padding: 0 16px;
+  }
+
+  .row-title h2 {
+    font-size: 28px;
+  }
+
+  .book-row {
+    gap: 14px;
+  }
+}

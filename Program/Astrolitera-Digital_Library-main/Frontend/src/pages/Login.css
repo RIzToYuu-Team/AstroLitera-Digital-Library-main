@@ -1,34 +1,25 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  width: 100%;
-  height: 100%;
-  background: white;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-.reg-container {
+.log-container {
   display: flex;
   width: 100%;
   min-height: 100vh;
   position: relative;
-  overflow: visible;
+  background: #ffffff;
+  overflow-x: hidden;
 }
 
-.reg-left {
-  flex: none;
+.log-container * {
+  box-sizing: border-box;
+}
+
+.log-left {
   width: 62%;
   max-width: 800px;
   padding: 40px 150px;
   position: relative;
+  z-index: 2;
 }
 
-.reg-back {
+.log-back {
   background: #1b2b44;
   width: 92px;
   height: 92px;
@@ -46,50 +37,86 @@ html, body {
   outline: none;
   padding-right: 14px;
   padding-bottom: 14px;
-  transition: 0.2s;
 }
 
-.reg-back:hover {
-  opacity: 0.92;
-}
-
-.reg-back:active {
-  transform: scale(0.98);
-}
-
-.reg-title {
+.log-title {
   margin-top: 20px;
   font-size: 36px;
-  font-weight: bold;
+  font-weight: 700;
   color: #1b2b44;
   text-decoration: underline;
 }
 
-.reg-form {
+.log-form {
   margin-top: 25px;
   display: flex;
   flex-direction: column;
   width: 80%;
 }
 
-.reg-form label {
+.log-form label {
   margin-top: 12px;
   font-size: 16px;
   font-weight: 600;
+  color: #1b2b44;
 }
 
-.reg-form input {
+.log-form input {
+  width: 100%;
   border: 2px solid #e0b300;
-  padding: 10px;
+  padding: 11px 14px;
   border-radius: 10px;
   margin-top: 5px;
+  font-size: 15px;
+  outline: none;
+  background: white;
 }
 
-.reg-submit {
-  margin-top: 25px;
+.log-form input:focus {
+  border-color: #c79f00;
+}
+
+.log-password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.log-password-wrapper input {
+  padding-right: 45px;
+}
+
+.log-toggle-pass {
+  position: absolute;
+  right: 14px;
+  top: 58%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  opacity: 0.65;
+  color: #1b2b44;
+}
+
+.log-toggle-pass:hover {
+  opacity: 1;
+}
+
+.log-forgot-pass {
+  font-size: 13px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  color: #444;
+  cursor: pointer;
+}
+
+.log-forgot-pass:hover {
+  text-decoration: underline;
+  color: #1b2b44;
+}
+
+.log-submit {
+  margin-top: 18px;
   background: #1b2b44;
   color: white;
-  padding: 10px 25px;
+  padding: 12px 25px;
   border-radius: 10px;
   border: none;
   cursor: pointer;
@@ -97,22 +124,32 @@ html, body {
   font-size: 16px;
 }
 
-.reg-links {
+.log-submit:hover {
+  opacity: 0.92;
+}
+
+.log-links {
   margin-top: 30px;
   font-size: 13px;
+  color: #1b2b44;
 }
 
-.as-guest {
+.log-as-guest {
   text-decoration: underline;
   cursor: pointer;
+  width: fit-content;
 }
 
-.login-link {
+.log-login-text {
+  margin-top: 8px;
+}
+
+.log-login-link {
   color: blue;
   cursor: pointer;
 }
 
-.reg-right {
+.log-right {
   position: absolute;
   top: 0;
   right: 0;
@@ -126,10 +163,11 @@ html, body {
   justify-content: flex-end;
   align-items: center;
   padding-bottom: 80px;
+  overflow: hidden;
+  z-index: 1;
 }
 
-
-.vertical-text {
+.log-vertical-text {
   position: absolute;
   right: 10px;
   top: 5%;
@@ -138,16 +176,16 @@ html, body {
   font-size: 48px;
   font-weight: 800;
   letter-spacing: 2px;
-  opacity: 60%;
+  opacity: 0.6;
   color: white;
   user-select: none;
 }
 
-.brand-text {
+.log-brand-text {
   font-size: 24px;
   font-weight: 700;
   color: white;
-  opacity: 90%;
+  opacity: 0.9;
   letter-spacing: 1.8px;
   margin-bottom: -40px;
   margin-right: -240px;
@@ -155,67 +193,149 @@ html, body {
   user-select: none;
 }
 
-.book-image {
+.log-book-image {
   position: absolute;
   right: 14%;
   top: 50%;
   transform: translateY(-50%) rotate(-3deg);
   width: 400px;
-  z-index: 999;
-  filter: drop-shadow(0px 15px 25px rgba(0,0,0,0.35));
+  z-index: 3;
+  filter: drop-shadow(0px 15px 25px rgba(0, 0, 0, 0.35));
   pointer-events: none;
 }
 
-.upload-box *,
-.upload-placeholder *,
-.upload-box svg {
-  cursor: pointer;
+@media (max-width: 1024px) {
+  .log-right,
+  .log-book-image,
+  .log-vertical-text,
+  .log-brand-text {
+    display: none;
+  }
+
+  .log-left {
+    width: 100%;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 70px 24px 40px;
+  }
+
+  .log-title {
+    text-align: center;
+    text-decoration: underline;
+  }
+
+  .log-back {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 0 0 64px 0;
+    padding-right: 9px;
+    padding-bottom: 9px;
+    z-index: 999;
+  }
+
+  .log-form {
+    width: 100%;
+  }
 }
 
-.password-wrapper {
-  position: relative;
-  width: 100%;
+@media (max-width: 768px) {
+  .log-container {
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background: #f5f7fb;
+    padding: 48px 14px 28px;
+  }
+
+  .log-left {
+    width: 100%;
+    max-width: 390px;
+    padding: 0;
+  }
+
+  .log-back {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 0 0 64px 0;
+    padding-right: 9px;
+    padding-bottom: 9px;
+    z-index: 999;
+  }
+
+  .log-title {
+    margin: 0 0 18px;
+    text-align: center;
+    font-size: 30px;
+    color: #1b2b44;
+    text-decoration: underline;
+  }
+
+  .log-form {
+    margin-top: 0;
+    width: 100%;
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(27, 43, 68, 0.12);
+  }
+
+  .log-form label {
+    margin-top: 10px;
+    font-size: 13px;
+  }
+
+  .log-form label:first-child {
+    margin-top: 0;
+  }
+
+  .log-form input {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-radius: 9px;
+  }
+
+  .log-submit {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px 18px;
+    font-size: 15px;
+  }
+
+  .log-links {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .log-as-guest {
+    width: auto;
+  }
 }
 
-.password-wrapper input {
-  width: 100%;
-  padding-right: 40px;
-}
+@media (max-width: 480px) {
+  .log-container {
+    padding: 44px 12px 24px;
+  }
 
-.toggle-pass {
-  position: absolute;
-  right: 19px;
-  top: 60%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  opacity: 0.65;
-  transition: 0.2s;
-  user-select: none;
-}
+  .log-title {
+    font-size: 28px;
+    margin-bottom: 16px;
+    text-decoration: underline;
+  }
 
-.toggle-pass:hover {
-  opacity: 1;
-}
+  .log-form {
+    padding: 16px;
+    border-radius: 16px;
+  }
 
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-  display: none !important;
-}
-
-input[type="password"]::-webkit-textfield-decoration-container {
-  display: none !important;
-}
-
-.forgot-pass {
-  font-size: 13px;
-  margin-top: 5px;
-  margin-bottom: 10px;
-  color: #444;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.forgot-pass:hover {
-  text-decoration: underline;
-  color: #1b2b44;
+  .log-back {
+    width: 58px;
+    height: 58px;
+    border-radius: 0 0 58px 0;
+  }
 }
