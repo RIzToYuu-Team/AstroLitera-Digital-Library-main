@@ -3,6 +3,7 @@ import "./ResetPassword.css";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
+import { supabase } from "../utils/supabaseClient";
 import bookImg from "../assets/resetpw.png";
 
 export default function ResetPassword() {
@@ -38,27 +39,32 @@ export default function ResetPassword() {
   const canSubmit =
     rules.minLen && hasLetterAndNumber && rules.hasSpecial && confirm === password;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!canSubmit) return;
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const idx = users.findIndex((u) => u.nis === nis);
-    if (idx === -1) {
-      showToast?.("error", "Akun tidak ditemukan!");
-      navigate("/login");
-      return;
-    }
-
-    users[idx] = { ...users[idx], password };
-    localStorage.setItem("users", JSON.stringify(users));
-
     try {
-      sessionStorage.removeItem("reset_nis");
-    } catch {}
+      const { error } = await supabase
+        .from("profiles")
+        .update({ password })
+        .eq("nis", nis);
 
-    showToast?.("success", "Kata sandi berhasil di ganti, silahkan login ulang");
-    navigate("/login");
+      if (error) throw error;
+
+      sessionStorage.removeItem("reset_user_id");
+
+      showToast?.(
+        "success",
+        "Kata sandi berhasil diganti, silakan login ulang"
+      );
+
+      navigate("/login");
+
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", err.message);
+    }
   };
 
   return (

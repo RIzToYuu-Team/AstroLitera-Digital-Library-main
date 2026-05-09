@@ -248,7 +248,7 @@ input[type="password"]::-webkit-textfield-decoration-container {
 .upload-box {
   width: 100%;
   height: auto;
-  border: 2px dashed #e0b300;
+  border: 2px solid #e0b300;
   border-radius: 8px;
   display: flex;
   align-items: center;

@@ -3,6 +3,7 @@ import "./ForgotPass1.css";
 import lupaImg from "../assets/forgot.png";
 import { useToast } from "./Toast";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../utils/supabaseClient";
 
 export default function ForgotPass1({ onClose }) {
   const showToast = useToast();
@@ -11,28 +12,35 @@ export default function ForgotPass1({ onClose }) {
   const [nama, setNama] = useState("");
   const [nis, setNis] = useState("");
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const found = users.find(
-      (u) => u.nama.toLowerCase() === nama.toLowerCase() && u.nis === nis
-    );
-
-    if (!found) {
-      showToast?.("error", "Akun tidak ditemukan!");
+    if (!nis.trim() || !nama.trim()) {
+      showToast?.("error", "Isi data terlebih dahulu!");
       return;
     }
 
-    // simpan NIS untuk proses reset password
     try {
-      sessionStorage.setItem("reset_nis", found.nis);
-    } catch {}
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("nis", nis)
+        .eq("username", nama.trim())
+        .single();
 
-    showToast?.("success", "Akun ditemukan!");
-    onClose?.();
-    navigate("/reset-password");
+      if (error || !data) {
+        showToast?.("error", "Akun tidak ditemukan!");
+        return;
+      }
+
+      sessionStorage.setItem("reset_nis", data.nis);
+      showToast?.("success", "Akun ditemukan!");
+      navigate("/reset-password");
+
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", err.message);
+    }
   }
 
   return (
