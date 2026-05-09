@@ -155,7 +155,7 @@ function Register() {
         <button
           type="button"
           className="reg-back"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/home")}
           aria-label="Kembali"
         >
           <ArrowLeft size={22} />

@@ -77,21 +77,21 @@ function Login() {
   }
 
   return (
-    <div className="reg-container">
+    <div className="log-container">
 
-      <div className="reg-left">
+      <div className="log-left">
         <button
           type="button"
-          className="reg-back"
-          onClick={() => navigate(-1)}
+          className="log-back"
+          onClick={() => navigate("/home")}
           aria-label="Kembali"
         >
           <ArrowLeft size={22} />
         </button>
 
-        <h1 className="reg-title">Masuk</h1>
+        <h1 className="log-title">Masuk</h1>
 
-        <form onSubmit={handleSubmit} className="reg-form">
+        <form onSubmit={handleSubmit} className="log-form">
 
           <label>Email :</label>
           <input
@@ -103,7 +103,7 @@ function Login() {
           />
 
           <label>Kata Sandi :</label>
-          <div className="password-wrapper">
+          <div className="log-password-wrapper">
             <input
               type={showPassword ? "text" : "password"}
               name="password"
@@ -113,28 +113,28 @@ function Login() {
             />
 
             <span
-              className="toggle-pass"
+              className="log-toggle-pass"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </span>
           </div>
 
-          <p className="forgot-pass" onClick={() => setShowForgot(true)}>
+          <p className="log-forgot-pass" onClick={() => setShowForgot(true)}>
             Lupa Kata Sandi Anda?
           </p>
 
-          <button className="reg-submit" type="submit">
+          <button className="log-submit" type="submit">
             Masuk
           </button>
         </form>
 
-        <div className="reg-links">
-          <p className="as-guest" onClick={() => navigate("/home")}>
+        <div className="log-links">
+          <p className="log-as-guest" onClick={() => navigate("/home")}>
             Lanjut Sebagai Tamu
           </p>
 
-          <p className="login-text">
+          <p className="log-login-text">
             Belum Punya Akun?{" "}
             <span onClick={() => navigate("/register")} className="login-link">
               Daftar Di Sini
@@ -143,11 +143,11 @@ function Login() {
         </div>
       </div>
 
-      <img src={bookImg} alt="Books" className="book-image" />
+      <img src={bookImg} alt="Books" className="log-book-image" />
 
-      <div className="reg-right">
-        <div className="vertical-text">WELCOME</div>
-        <p className="brand-text">ASTROLITERA<br />DIGITAL LIBRARY</p>
+      <div className="log-right">
+        <div className="log-vertical-text">WELCOME</div>
+        <p className="log-brand-text">ASTROLITERA<br />DIGITAL LIBRARY</p>
       </div>
 
       {showForgot && <ForgotPass1 onClose={() => setShowForgot(false)} />}
