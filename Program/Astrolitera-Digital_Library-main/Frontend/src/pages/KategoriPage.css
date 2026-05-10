@@ -1,34 +1,49 @@
 .kategori-container {
-  padding: 22px 25px;
+  padding: 32px 26px 48px;
+  min-height: 100vh;
+  background: #f2f2f2;
 }
 
 .kategori-header {
   display: flex;
   align-items: center;
-  margin-bottom: 25px;
-  margin-top: -20px;
-  gap: 14px;
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+.back-button {
+  background: transparent;
+  border: none;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .kategori-title {
-  font-size: 26px;
-  font-weight: bold;
+  margin: 0;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1;
+  color: #000;
 }
 
 .view-buttons {
-  display: flex;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 14px;
-  background: #e4e4e5ff; 
-  margin-top: 55px;
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  background: #e4e4e5;
 }
 
 .view-icon {
   cursor: pointer;
-  opacity: .45;
-  transition: .2s;
+  opacity: 0.45;
+  transition: 0.2s;
 }
 
 .view-icon.active {
@@ -36,39 +51,75 @@
   color: #f4c521;
 }
 
-/* GRID MODE */
 .kategori-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 0px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 170px));
+  gap: 28px 34px;
+  align-items: start;
 }
 
-/* LIST MODE */
 .kategori-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  grid-template-columns: 1fr;
+  gap: 16px;
 }
 
-@media (max-width: 640px) {
-  .kategori-list {
-    grid-template-columns: 1fr;
+@media (max-width: 768px) {
+  .kategori-container {
+    padding: 28px 26px 44px;
+  }
+
+  .kategori-header {
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+
+  .kategori-title {
+    font-size: 34px;
+    font-weight: 800;
+  }
+
+  .view-buttons {
+    transform: translateY(26px);
+    padding: 9px 13px;
+  }
+
+  .kategori-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 34px 28px;
   }
 }
 
-.back-button {
-  background: #f2f2f2;
-  border: none;
-  border-radius: 12px;
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
+@media (max-width: 428px) {
+  .kategori-container {
+    padding: 26px 26px 42px;
+  }
 
-.rekomendasi-text {
-  font-size: 18px;
-  font-weight: 600;
-  margin-left: 6px;
+  .kategori-header {
+    gap: 12px;
+    margin-bottom: 38px;
+  }
+
+  .kategori-title {
+    font-size: 32px;
+    font-weight: 800;
+  }
+
+  .back-button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .view-buttons {
+    transform: translateY(30px);
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 16px;
+  }
+
+  .kategori-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 34px 32px;
+  }
 }
