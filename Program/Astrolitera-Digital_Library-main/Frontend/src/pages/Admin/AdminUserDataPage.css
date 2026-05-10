@@ -5,86 +5,91 @@
   color: #202737;
 }
 
+/* Header */
 .admin-user-topbar {
-  height: 86px;
+  height: 98px;
   background: #243349;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
+  padding: 0 32px;
 }
 
 .admin-user-brand {
   display: flex;
   align-items: center;
   gap: 18px;
-  font-size: 19px;
+  font-size: 26px;
   font-weight: 700;
 }
 
 .admin-user-brand__logo {
-  width: 28px;
-  height: 28px;
+  width: 48px;
+  height: 48px;
   border-radius: 999px;
-  background: #f4f4f4;
+  background: #f5f5f5;
 }
 
 .admin-user-menu-btn {
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   border: none;
   background: transparent;
   display: grid;
   align-content: center;
-  gap: 5px;
+  gap: 7px;
   cursor: pointer;
 }
 
 .admin-user-menu-btn span {
   display: block;
-  width: 28px;
-  height: 4px;
+  width: 34px;
+  height: 5px;
   margin-left: auto;
   border-radius: 999px;
   background: #f2f2f2;
 }
 
+/* Content */
 .admin-user-content {
-  padding: 18px 18px 24px;
+  padding: 28px 32px 34px;
 }
 
+/* Heading */
 .admin-user-heading {
-  margin-bottom: 12px;
+  margin-bottom: 24px;
 }
 
 .admin-user-heading h1 {
-  margin: 0 0 4px;
-  font-size: 18px;
+  margin: 0 0 8px;
+  font-size: 24px;
   font-weight: 700;
 }
 
 .admin-user-heading p {
   margin: 0;
-  font-size: 12px;
-  color: #474f5d;
+  font-size: 16px;
+  color: #2d3340;
 }
 
+/* Toolbar + Panel */
 .admin-user-toolbar,
 .admin-user-panel {
   background: #f6f6f8;
-  border-radius: 10px;
+  border-radius: 14px;
   box-shadow: 0 8px 18px rgba(16, 24, 40, 0.12);
 }
 
 .admin-user-toolbar {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px;
-  margin-bottom: 14px;
+  gap: 20px;
+  padding: 16px 24px;
+  margin-bottom: 18px;
 }
 
+/* Search */
 .admin-user-search {
   flex: 1;
   position: relative;
@@ -92,21 +97,21 @@
 
 .admin-user-search__icon {
   position: absolute;
-  left: 14px;
+  left: 18px;
   top: 50%;
   transform: translateY(-50%);
-  color: #232323;
-  font-size: 14px;
+  color: #151515;
+  font-size: 18px;
 }
 
 .admin-user-search input {
   width: 90%;
-  height: 36px;
-  border: 1px solid #9ca2aa;
-  border-radius: 3px;
+  height: 38px;
+  border: 1px solid #8f9399;
+  border-radius: 4px;
   background: #fbfbfb;
-  padding: 0 14px 0 38px;
-  font-size: 12px;
+  padding: 0 16px 0 52px;
+  font-size: 14px;
   outline: none;
 }
 
@@ -114,41 +119,44 @@
   border-color: #dfb414;
 }
 
+/* Filter */
 .admin-user-filter {
-  min-width: 145px;
+  min-width: 182px;
 }
 
 .admin-user-filter select {
   width: 100%;
-  height: 36px;
+  height: 38px;
   border: none;
   background: #e0b71a;
-  color: #161616;
+  color: #171717;
   border-radius: 2px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
-  padding: 0 10px;
+  padding: 0 14px;
   cursor: pointer;
   outline: none;
 }
 
+/* Panel */
 .admin-user-panel {
-  padding: 10px 12px 14px;
+  padding: 10px 16px 16px;
 }
 
+/* Tabs */
 .admin-user-tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .admin-user-tabs button {
   border: 1px solid #deb62e;
   background: #ffffff;
   color: #353535;
-  border-radius: 4px 4px 0 0;
-  padding: 7px 12px;
-  font-size: 12px;
+  border-radius: 6px 6px 0 0;
+  padding: 10px 16px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -157,6 +165,7 @@
   background: #f0d05f;
 }
 
+/* Table */
 .admin-user-table-wrap {
   overflow-x: auto;
 }
@@ -164,55 +173,60 @@
 .admin-user-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 860px;
+  min-width: 920px;
 }
 
 .admin-user-table th {
   text-align: left;
-  padding: 0 10px 10px;
-  font-size: 12px;
+  padding: 0 10px 12px;
+  font-size: 14px;
   font-weight: 700;
-  border-bottom: 2px solid #ccd2dd;
+  color: #202737;
+  border-bottom: 2px solid #c8cfdb;
 }
 
 .admin-user-table td {
-  padding: 12px 10px;
-  font-size: 12px;
-  border-bottom: 1px solid #e5e7ee;
+  padding: 14px 10px;
+  font-size: 14px;
+  border-bottom: 1px solid #e2e5eb;
   vertical-align: middle;
 }
 
+/* Order */
 .admin-user-order {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  border: 1px solid #8b9099;
-  border-radius: 5px;
-  font-size: 11px;
-}
-
-.admin-user-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 2px;
-  object-fit: cover;
-  border: 1px solid #d7dce5;
-}
-
-.admin-user-name {
+  min-width: 24px;
+  height: 24px;
+  padding: 0 4px;
+  border: 1px solid #7d8188;
+  border-radius: 6px;
   font-size: 13px;
 }
 
+/* Avatar */
+.admin-user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid #d9dde5;
+}
+
+.admin-user-name {
+  font-size: 16px;
+}
+
+/* Status */
 .admin-user-status {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 88px;
-  padding: 5px 10px;
+  min-width: 104px;
+  padding: 7px 14px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -231,18 +245,20 @@
   color: #3b0f10;
 }
 
+/* Actions */
 .admin-user-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .admin-user-actions button {
   border: none;
   background: transparent;
-  font-size: 11px;
+  font-size: 13px;
   cursor: pointer;
   padding: 0;
+  font-weight: 600;
 }
 
 .admin-user-actions .is-edit {
@@ -250,45 +266,48 @@
 }
 
 .admin-user-actions .is-delete {
-  color: #b28b00;
+  color: #b33535;
 }
 
 .admin-user-actions .is-view {
-  color: #8c7600;
+  color: #495261;
 }
 
+/* Empty */
 .admin-user-empty {
   text-align: center;
   padding: 32px 12px;
   color: #667085;
 }
 
+/* Footer */
 .admin-user-footer {
-  border-top: 1px solid #bcc6d3;
-  margin-top: 14px;
-  padding: 10px 4px 0;
+  border-top: 1px solid #bfc8d4;
+  margin-top: 16px;
+  padding: 12px 8px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  font-size: 11px;
+  font-size: 14px;
   color: #384152;
 }
 
+/* Pagination */
 .admin-user-pagination {
   display: flex;
   gap: 6px;
 }
 
 .admin-user-pagination button {
-  min-width: 20px;
-  height: 20px;
+  min-width: 26px;
+  height: 26px;
   border: none;
   background: #e6e6e8;
   color: #2b3342;
-  border-radius: 2px;
+  border-radius: 3px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .admin-user-pagination button.is-active {
@@ -296,9 +315,18 @@
   font-weight: 700;
 }
 
-@media (max-width: 768px) {
+/* Responsive */
+@media (max-width: 960px) {
+  .admin-user-content {
+    padding: 22px 18px 28px;
+  }
+
   .admin-user-topbar {
     padding: 0 18px;
+  }
+
+  .admin-user-brand {
+    font-size: 22px;
   }
 
   .admin-user-toolbar,
