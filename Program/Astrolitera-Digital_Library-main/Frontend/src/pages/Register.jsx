@@ -126,7 +126,7 @@ function Register() {
             username: form.nama,
             kelas: form.kelas,
             password: form.password,
-            kartu_url: filePath,
+            kartu_perpustakaan: filePath,
             status: "Pending",
           },
         ]);

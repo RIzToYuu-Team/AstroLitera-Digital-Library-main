@@ -1,36 +1,37 @@
-import React, { useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import "./SideMenu.css";
 import { ArrowLeft, Home, Bookmark, Clock, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import defaultAvatar from "../assets/default-avatar.jpg"; 
-
-const DEFAULT_AVATAR_SRC = defaultAvatar;
+import defaultAvatar from "../assets/default-avatar.jpg";
+import { getSessionUser, clearSessionUser } from "../utils/session";
 
 function SideMenu({ open, onClose }) {
   const navigate = useNavigate();
 
-  const sessionUser = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem("sessionUser") || "null");
-    } catch {
-      return null;
-    }
-  }, [open]);
+  const [sessionUser, setSessionUser] = useState(getSessionUser());
 
-  const isLoggedIn = !!sessionUser;
+  useEffect(() => {
+    const sync = () => setSessionUser(getSessionUser());
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
+  }, []);
 
-  // Nama + NIS (sementara dari sessionUser; nanti bisa pindah ke Pengaturan)
-  const profileName = isLoggedIn ? sessionUser?.nama || "Anonim" : "Pengunjung";
-  const profileSub = isLoggedIn ? sessionUser?.nis || "" : "Akses terbatas";
+  const isLoggedIn = Boolean(sessionUser?.id);
 
-  // Foto user: prioritas fotoProfil, fallback kartu, fallback default
-  const userPhoto =
-    (isLoggedIn && (sessionUser?.fotoProfil || sessionUser?.kartu)) || "";
+  const profileName = isLoggedIn
+    ? sessionUser?.username || "Anonim"
+    : "Pengunjung";
+
+  const profileSub = isLoggedIn
+    ? sessionUser?.nis || ""
+    : "Akses terbatas";
+
+  const userPhoto = sessionUser?.fotoProfil || sessionUser?.kartu || "";
 
   const profileImgSrc =
-    typeof userPhoto === "string" && userPhoto.trim() !== ""
+    userPhoto && userPhoto.trim() !== ""
       ? userPhoto
-      : DEFAULT_AVATAR_SRC;
+      : defaultAvatar;
 
   const go = (path) => {
     onClose?.();
@@ -38,9 +39,10 @@ function SideMenu({ open, onClose }) {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("sessionUser");
+    clearSessionUser();
+    setSessionUser(null);
     onClose?.();
-    navigate("/home");
+    navigate("/login");
   };
 
   return (
