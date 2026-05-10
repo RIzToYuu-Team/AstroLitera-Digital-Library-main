@@ -1,6 +1,6 @@
 import React from "react";
 import "./BookCard.css";
-import { Star, Bookmark } from "lucide-react";
+import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "./Toast";
 import { useEffect, useState } from "react";
@@ -72,18 +72,9 @@ function BookCard({
       onClick={handleClick}
       style={{ cursor: disableClick ? "default" : "pointer" }}
     >
-      <img src={cover} alt={title} className="book-cover" />
-
-      <button
-        type="button"
-        className={`bookmark-btn ${
-          view === "list" ? "bookmark-btn--list" : "bookmark-btn--grid"
-        } ${isFav ? "active" : ""}`}
-        onClick={handleBookmarkClick}
-        aria-label={isFav ? "Hapus dari favorit" : "Simpan ke favorit"}
-      >
-        <Bookmark size={22} />
-      </button>
+      <div className="book-cover-wrap">
+        <img src={cover} alt={title} className="book-cover" />
+      </div>
 
       <div className="book-content">
         <div className="book-info">
