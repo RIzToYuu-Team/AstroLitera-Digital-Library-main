@@ -1,80 +1,426 @@
-/* GENERAL */
-.page-container {
-  width: 100%;
+/* =========================
+   SHARED INFO PAGE
+   Tentang, Kontak, Kebijakan
+========================= */
+
+.info-page {
   min-height: 100vh;
   background: #22303f;
+  padding-bottom: 45px;
+}
+
+.info-header {
+  width: 100%;
+  height: 76px;
+  background: #141b2d;
+  color: #ffffff;
+  padding: 0 34px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+}
+
+.info-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.info-back:hover {
+  opacity: 0.75;
+}
+
+.info-header h1 {
+  font-size: 23px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0 26px;
+}
+
+.info-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 34px 24px 45px;
+}
+
+.info-card {
+  width: 100%;
+  max-width: 980px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #f8fafc;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+}
+
+.info-hero {
+  text-align: center;
+  padding: 38px 28px 32px;
+  background: #141b2d;
+  color: #ffffff;
+}
+
+.info-icon-box {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: rgba(245, 197, 66, 0.12);
+  border: 1px solid rgba(245, 197, 66, 0.22);
+  color: #f5c542;
+}
+
+.info-hero h2 {
+  font-size: 27px;
+  margin: 0 0 10px;
+  color: #ffffff;
+}
+
+.info-hero p {
+  max-width: 690px;
+  margin: 0 auto;
+  line-height: 1.7;
+  color: #e5e7eb;
+  font-size: 15px;
+}
+
+.info-section {
+  padding: 26px 32px 8px;
+}
+
+.info-section.last-section {
   padding-bottom: 30px;
 }
 
-/* HEADER */
-.page-header {
-  background: #141b2d;
-  color: white;
-  padding: 15px 20px;
+.section-title {
   display: flex;
   align-items: center;
-  gap: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-.page-header h1 {
+.section-title h3 {
   font-size: 20px;
-  font-weight: bold;
+  color: #141b2d;
+  margin: 0;
 }
 
-.back-icon {
-  cursor: pointer;
+.section-icon,
+.visi-icon {
+  color: #f5c542;
 }
 
-/* CARD CONTENT */
-.fancy-card {
-  background: white;
-  margin: 25px;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+.info-section p {
+  line-height: 1.75;
+  color: #4b5563;
+  font-size: 15px;
+  margin: 0;
 }
 
-.section {
-  margin-bottom: 20px;
+/* =========================
+   TENTANG KAMI
+========================= */
+
+.visi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 18px 32px;
 }
 
-.section-icon {
-  margin-bottom: 10px;
-  color: #1f3a93;
+.visi-card,
+.team-card,
+.contact-box,
+.policy-box,
+.policy-intro {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
 }
 
-/* Divider */
-.divider {
-  width: 100%;
-  height: 1px;
-  background: #ddd;
-  margin: 20px 0;
+.visi-card {
+  padding: 19px 17px;
+  border-radius: 13px;
+  transition: 0.2s ease;
 }
 
-/* CONTACT */
-.contact-item {
+.visi-card:hover {
+  transform: translateY(-2px);
+}
+
+.visi-card h4 {
+  font-size: 16px;
+  color: #141b2d;
+  margin: 8px 0 7px;
+}
+
+.visi-card p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #64748b;
+  margin: 0;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 15px;
+}
+
+.team-card {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 12px 0;
-  font-size: 16px;
+  padding: 15px;
+  border-radius: 13px;
+}
+
+.team-avatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #141b2d;
+  color: #f5c542;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.team-info h4 {
+  font-size: 14.5px;
+  color: #141b2d;
+  margin: 0 0 4px;
+}
+
+.team-info p {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.tech-stack span {
+  background: #141b2d;
+  color: #f5c542;
+  padding: 8px 13px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* =========================
+   KONTAK
+========================= */
+
+.contact-card {
+  max-width: 880px;
+}
+
+.contact-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 15px;
+  padding: 28px 32px 18px;
+}
+
+.contact-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 18px;
+  border-radius: 13px;
+}
+
+.contact-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: rgba(245, 197, 66, 0.13);
+  color: #d9a91a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-box h3 {
+  font-size: 15.5px;
+  color: #141b2d;
+  margin: 0 0 6px;
+}
+
+.contact-box p {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .contact-note {
-  margin-top: 20px;
-  font-style: italic;
-  opacity: 0.8;
-}
-
-/* POLICY */
-.policy-list {
-  margin-left: 20px;
+  margin: 10px 32px 30px;
+  padding: 16px 18px;
+  border-radius: 13px;
+  background: rgba(20, 27, 45, 0.06);
+  color: #4b5563;
+  font-size: 14px;
   line-height: 1.6;
 }
 
-.policy-footer {
-  margin-top: 15px;
+/* =========================
+   KEBIJAKAN
+========================= */
+
+.policy-content {
+  padding: 28px 32px 30px;
+}
+
+.policy-intro {
+  padding: 18px;
+  border-radius: 13px;
+  margin-bottom: 18px;
+}
+
+.policy-intro p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.75;
+  color: #4b5563;
+}
+
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.policy-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 18px;
+  border-radius: 13px;
+}
+
+.policy-box svg {
+  color: #d9a91a;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.policy-box h3 {
+  font-size: 15.5px;
+  color: #141b2d;
+  margin: 0 0 6px;
+}
+
+.policy-box p {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.policy-note {
+  margin: 18px 0 0;
+  padding: 16px 18px;
+  border-radius: 13px;
+  background: rgba(20, 27, 45, 0.06);
+  color: #4b5563;
   font-size: 14px;
-  opacity: 0.8;
+  line-height: 1.6;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+  .info-page {
+    padding-bottom: 28px;
+  }
+
+  .info-header {
+    height: 68px;
+    padding: 0 18px;
+  }
+
+  .info-header h1 {
+    font-size: 19px;
+    margin-left: 24px;
+  }
+
+  .info-back {
+    font-size: 13px;
+  }
+
+  .info-wrapper {
+    padding: 20px 15px 28px;
+  }
+
+  .info-card {
+    border-radius: 13px;
+  }
+
+  .info-hero {
+    padding: 32px 20px 27px;
+  }
+
+  .info-hero h2 {
+    font-size: 23px;
+  }
+
+  .info-hero p {
+    font-size: 14px;
+  }
+
+  .info-section {
+    padding: 22px 20px 6px;
+  }
+
+  .visi-grid,
+  .contact-list,
+  .policy-grid,
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .visi-grid,
+  .contact-list {
+    padding: 15px 20px;
+  }
+
+  .team-card {
+    align-items: flex-start;
+  }
+
+  .contact-note {
+    margin: 8px 20px 24px;
+    font-size: 13.5px;
+  }
+
+  .policy-content {
+    padding: 22px 20px 24px;
+  }
+
+  .policy-note {
+    font-size: 13.5px;
+  }
 }

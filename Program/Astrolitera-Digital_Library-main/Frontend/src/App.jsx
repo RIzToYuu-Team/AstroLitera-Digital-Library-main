@@ -12,7 +12,7 @@ import Aktivitas from "./pages/Aktivitas";
 import DetailBuku from "./pages/DetailBuku";
 import KategoriPage from "./pages/KategoriPage";
 import HalamanBaca from "./pages/HalamanBaca";
-import SearchResult from "./pages/SearchResult";
+import SearchResult from "./pages/searchResult";
 import ViewAllPage from "./pages/ViewAllPage";
 import ResetPassword from "./pages/ResetPassword";
 import Toast, { ToastProvider } from "./components/Toast";
