@@ -32,12 +32,23 @@
 }
 
 /* Empty state */
-.favorit-empty{
-  margin: 0;
+.favorit-empty {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
   padding: 0;
   background: transparent;
   border-radius: 0;
   box-shadow: none;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.favorit-empty p {
+  width: 100%;
+  margin: 0;
   text-align: center;
 }
 
@@ -47,10 +58,13 @@
 }
 
 /* hanya saat kosong -> center */
-.favorit-main.is-empty{
+.favorit-main.is-empty {
+  width: 100%;
+  min-height: calc(100vh - 360px);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 40px 16px;
 }
 
 /* saat ada buku -> normal */
@@ -59,10 +73,10 @@
 }
 
 .favorit-empty-actions {
+  width: 100%;
   display: flex;
-  gap: 10px;
-  margin-top: 14px;
-  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .favorit-primary {
@@ -89,4 +103,53 @@
   color: white;
   font-weight: 800;
   cursor: pointer;
+}
+
+
+@media (max-width: 768px) {
+  .favorit-page {
+    overflow-x: hidden;
+  }
+
+  .favorit-list.grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .favorit-list.list {
+    gap: 12px;
+  }
+
+  .favorit-empty {
+    max-width: 320px;
+    padding: 20px 16px;
+  }
+
+  .favorit-empty p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .favorit-empty-actions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .favorit-primary,
+  .favorit-secondary {
+    width: 100%;
+    max-width: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .favorit-list.grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .favorit-main {
+    min-height: calc(100vh - 130px);
+    padding-bottom: 20px;
+  }
 }
