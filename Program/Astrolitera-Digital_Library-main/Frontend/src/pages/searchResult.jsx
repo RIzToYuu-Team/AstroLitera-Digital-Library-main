@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import "./SearchResult.css";
+import "./searchResult.css";
 import "./KategoriPage.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
