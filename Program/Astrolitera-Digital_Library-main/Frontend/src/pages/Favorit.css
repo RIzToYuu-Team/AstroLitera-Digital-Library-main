@@ -1,10 +1,9 @@
-/* Favorit page layout (keep isolated) */
+/* Favorit page layout */
 .favorit-page {
   min-height: 100vh;
   background: #f3f4f6;
 }
 
-/* small tweaks so SearchResult controls fit under Header */
 .favorit-controls {
   border-bottom: none;
 }
@@ -15,6 +14,7 @@
 
 .favorit-main {
   flex: 1;
+  min-height: calc(100vh - 160px);
 }
 
 /* Results container */
@@ -52,12 +52,6 @@
   text-align: center;
 }
 
-.favorit-main{
-  flex: 1;
-  min-height: calc(100vh - 160px);
-}
-
-/* hanya saat kosong -> center */
 .favorit-main.is-empty {
   width: 100%;
   min-height: calc(100vh - 360px);
@@ -67,8 +61,7 @@
   padding: 40px 16px;
 }
 
-/* saat ada buku -> normal */
-.favorit-main.has-books{
+.favorit-main.has-books {
   display: block;
 }
 
@@ -104,7 +97,6 @@
   font-weight: 800;
   cursor: pointer;
 }
-
 
 @media (max-width: 768px) {
   .favorit-page {
