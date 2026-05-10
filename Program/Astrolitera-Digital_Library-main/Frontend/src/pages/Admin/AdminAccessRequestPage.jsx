@@ -1,118 +1,148 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./AdminAccessRequestPage.css";
-import { Navigate } from "react-router-dom";
+import { useToast } from "../../components/Toast";
 import Header from "../../components/Header";
-import { useNavigate } from "react-router-dom";
-import { getSessionUser, clearSessionUser } from "../../utils/session";
 import SideMenu from "../../components/SideMenu";
+import { Navigate } from "react-router-dom";
+import { getSessionUser } from "../../utils/session";
 import { supabase } from "../../utils/supabaseClient";
 
-const sessionUser = getSessionUser();
-
-
-
-const requestData = [
-  {
-    id: 1,
-    photo:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80",
-    name: "Anonim",
-    bookTitle: "Pergi",
-    author: "Tere Liye",
-    cover:
-      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=120&q=80",
-    date: "09 - 11 - 2024",
-    status: "Menunggu",
-  },
-  {
-    id: 2,
-    photo:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80",
-    name: "Anonim1",
-    bookTitle: "Pergi",
-    author: "Tere Liye",
-    cover:
-      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=120&q=80",
-    date: "10 - 11 - 2024",
-    status: "Disetujui",
-  },
-  {
-    id: 3,
-    photo:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
-    name: "Anonim2",
-    bookTitle: "Pergi",
-    author: "Tere Liye",
-    cover:
-      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=120&q=80",
-    date: "11 - 11 - 2024",
-    status: "Ditolak",
-  },
-  {
-    id: 4,
-    photo:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80",
-    name: "Alya",
-    bookTitle: "Bumi",
-    author: "Tere Liye",
-    cover:
-      "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=120&q=80",
-    date: "12 - 11 - 2024",
-    status: "Menunggu",
-  },
-  {
-    id: 5,
-    photo:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80",
-    name: "Alya",
-    bookTitle: "Bumi",
-    author: "Tere Liye",
-    cover:
-      "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=120&q=80",
-    date: "12 - 11 - 2024",
-    status: "Menunggu",
-  },
-  {
-    id: 6,
-    photo:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80",
-    name: "Alya",
-    bookTitle: "Bumi",
-    author: "Tere Liye",
-    cover:
-      "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=120&q=80",
-    date: "12 - 11 - 2024",
-    status: "Menunggu",
-  },
-];
-
-const statusOptions = ["Semua Status", "Disetujui", "Menunggu", "Ditolak"];
+const statusOptions = ["Semua Status", "Diterima", "Pending", "Ditolak"];
 
 export default function AdminAccessRequestPage() {
+  const sessionUser = getSessionUser();
+  const showToast = useToast();
   const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua Status");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [users, setUsers] = useState([]);
+  const itemsPerPage = 10;
 
   if (sessionUser?.role !== "Admin") {
     return <Navigate to="/home" />;
   }
 
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  async function fetchUsers() {
+    try {
+      const { data, error } = await supabase
+        .from("borrow")
+        .select(`
+        *,
+        profiles:user_id (
+          id,
+          username,
+          foto_profil
+        ),
+        books:book_id (
+          id,
+          judul,
+          penulis,
+          cover_buku
+        )
+      `)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      setUsers(data || []);
+
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal memuat data pengajuan");
+    } finally {
+      setCurrentPage(1);
+    }
+  }
+
   const filteredRequests = useMemo(() => {
-    return requestData.filter((item) => {
-      const matchesQuery =
-        item.name.toLowerCase().includes(query.toLowerCase()) ||
-        item.bookTitle.toLowerCase().includes(query.toLowerCase()) ||
-        item.author.toLowerCase().includes(query.toLowerCase());
+    let result = [...users];
 
-      const matchesStatus =
-        statusFilter === "Semua Status" || item.status === statusFilter;
+    if (query.trim()) {
+      const lowerQuery = query.toLowerCase();
 
-      return matchesQuery && matchesStatus;
-    });
-  }, [query, statusFilter]);
+      result = result.filter(
+        (item) =>
+          item.profiles?.username
+            ?.toLowerCase()
+            .includes(lowerQuery) ||
+
+          item.books?.judul
+            ?.toLowerCase()
+            .includes(lowerQuery) ||
+
+          item.books?.penulis
+            ?.toLowerCase()
+            .includes(lowerQuery)
+      );
+    }
+
+    if (statusFilter !== "Semua Status") {
+      result = result.filter(
+        (item) => item.status === statusFilter
+      );
+    }
+
+    return result;
+  }, [users, query, statusFilter]);
+
+  async function handleApprove(id) {
+    try {
+      const { error } = await supabase
+        .from("borrow")
+        .update({
+          status: "Diterima"
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      fetchUsers();
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function handleReject(id) {
+    try {
+      const { error } = await supabase
+        .from("borrow")
+        .update({
+          status: "Ditolak"
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      fetchUsers();
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function handleDelete(id) {
+    try {
+      const { error } = await supabase
+        .from("borrow")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      setUsers((prev) =>
+        prev.filter((item) => item.id !== id)
+      );
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
 
@@ -122,7 +152,7 @@ export default function AdminAccessRequestPage() {
   const currentReq = filteredRequests.slice(startIndex, endIndex);
 
   const getStatusClassName = (status) => {
-    if (status === "Disetujui") return "is-approved";
+    if (status === "Diterima") return "is-approved";
     if (status === "Ditolak") return "is-rejected";
     return "is-pending";
   };
@@ -193,27 +223,30 @@ export default function AdminAccessRequestPage() {
                         <td>
                           <img
                             className="admin-access-avatar"
-                            src={item.photo}
-                            alt={item.name}
+                            src={item.profiles?.foto_profil || "/default-avatar.jpg"}
+                            alt={item.profiles?.username}
                           />
                         </td>
                         <td>
-                          <strong className="admin-access-name">{item.name}</strong>
+                          <strong className="admin-access-name">{item.profiles?.username}</strong>
                         </td>
                         <td>
                           <div className="admin-access-book">
                             <img
                               className="admin-access-book__cover"
-                              src={item.cover}
-                              alt={item.bookTitle}
+                              src={item.books?.cover_buku || "/default-book.png"}
+                              alt={item.books?.judul}
                             />
                             <div className="admin-access-book__meta">
-                              <strong>{item.bookTitle}</strong>
-                              <span>{item.author}</span>
+                              <strong>{item.books?.judul}</strong>
+                              <span>{item.books?.penulis}</span>
                             </div>
                           </div>
                         </td>
-                        <td>{item.date}</td>
+                        <td>
+                          {new Date(item.created_at)
+                            .toLocaleDateString("id-ID")}
+                        </td>
                         <td>
                           <span
                             className={`admin-access-status ${getStatusClassName(
@@ -266,8 +299,11 @@ export default function AdminAccessRequestPage() {
 
             <footer className="admin-access-footer">
               <span>
-                Menampilkan {filteredRequests.length === 0 ? 0 : 1}-{Math.min(endIndex, filteredRequests.length)} dari{" "}
-                120 data
+                Menampilkan{" "}
+                {filteredRequests.length === 0 ? 0 : startIndex + 1}
+                -
+                {Math.min(endIndex, filteredRequests.length)} dari{" "}
+                {filteredRequests.length} data
               </span>
 
               <div className="admin-access-pagination">
@@ -295,7 +331,9 @@ export default function AdminAccessRequestPage() {
                   onClick={() =>
                     setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                   }
-                  disabled={currentPage === totalPages}
+                  disabled={
+                    currentPage >= totalPages || totalPages === 0
+                  }
                 >
                   ›
                 </button>

@@ -6,8 +6,10 @@ import SideMenu from "../../components/SideMenu";
 import { Navigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/session";
 import { supabase } from "../../utils/supabaseClient";
+import defaultAvatar from "../../assets/default-avatar.jpg";
 
 const tabs = ["Menunggu Persetujuan", "Anggota Aktif"];
+
 const statusOptions = ["Semua Status", "Diterima", "Pending", "Ditolak"];
 
 export default function AdminUserDataPage() {
@@ -228,7 +230,7 @@ export default function AdminUserDataPage() {
                       <td>
                         <img
                           className="admin-user-avatar"
-                          src={item.foto_profil || "/default-avatar.jpg"}
+                          src={item.foto_profil || defaultAvatar}
                           alt={item.username}
                         />
                       </td>
