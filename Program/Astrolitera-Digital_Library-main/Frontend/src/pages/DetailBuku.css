@@ -552,27 +552,47 @@ body,
   }
 
   .content-box {
-    width: 100vw;
-    margin-left: 50%;
-    border-radius: 0;
-    background: #162b45;
-    color: white;
-  }
+  width: 100%;
+  margin-left: 0;
+  border-radius: 0;
+  background: #162b45;
+  color: white;
+  height: auto;
+  min-height: 520px;
+  overflow: visible;
+}
 
-  .normal-mode,
-  .ulasan-mode {
-    margin: 0;
-    min-height: auto;
-    padding: 28px 20px;
-  }
+.normal-mode,
+.ulasan-mode {
+  margin: 0;
+  padding: 28px 20px 34px;
+}
 
-  .sinopsis {
-    width: 100%;
-    margin: 0;
-    font-size: 15px;
-    line-height: 1.7;
-    color: white;
-  }
+.sinopsis {
+  width: 100%;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: white;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  display: block;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.read-btn {
+  position: static;
+  width: 100%;
+  margin-top: 28px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #f1c232;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+}
 
   .info-grid {
     padding: 0;
@@ -581,18 +601,6 @@ body,
     gap: 14px;
     font-size: 14px;
     color: white;
-  }
-
-  .read-btn {
-    position: static;
-    width: 100%;
-    margin-top: 28px;
-    padding: 14px 18px;
-    border-radius: 14px;
-    background: #f1c232;
-    color: white;
-    font-size: 16px;
-    font-weight: 700;
   }
 
   .ulasan-wrapper {
@@ -641,4 +649,14 @@ body,
   .ulasan-mode {
     padding: 24px 18px;
   }
+
+  .content-box {
+  min-height: 560px;
+}
+
+.sinopsis {
+  font-size: 14.5px;
+  line-height: 1.75;
+}
+
 }
