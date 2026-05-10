@@ -92,7 +92,7 @@ export default function Pengaturan() {
 
   // Kalau sessionUser null, untuk sekarang tetep render UI (biar kamu desain dulu)
   // Nanti kamu bisa bungkus dengan guard.
-  const displayName = form.namaTampilan && form.namaTampilan.trim() !== "" ? form.namaTampilan : "Anonim";
+  const displayName = form.namaLengkap && form.namaLengkap.trim() !== "" ? form.namaLengkap : "Anonim";
 
   return (
     <div className="settings-root">
@@ -118,7 +118,7 @@ export default function Pengaturan() {
                 <div className="settings-name">{displayName}</div>
                 <div className="settings-status">
                   <BadgeCheck size={16} />
-                  <span>Sudah di Verifikasi</span>
+                  <span>Terverifikasi</span>
                 </div>
               </div>
             </div>

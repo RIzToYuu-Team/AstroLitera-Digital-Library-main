@@ -53,7 +53,7 @@ function Login() {
       }
 
       if (data.status !== "Diterima") {
-        showToast?.("error", "Akun anda belum disetujui, mohon hubungi admin/");
+        showToast?.("error", "Akun anda belum disetujui, mohon hubungi admin!");
         return;
       }
       showToast?.("success", "Berhasil Masuk!");

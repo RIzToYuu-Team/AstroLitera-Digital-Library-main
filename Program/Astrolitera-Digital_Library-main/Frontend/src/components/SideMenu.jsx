@@ -29,7 +29,7 @@ function SideMenu({ open, onClose }) {
   const isLoggedIn = !!sessionUser;
 
   // Nama + NIS (sementara dari sessionUser; nanti bisa pindah ke Pengaturan)
-  const profileName = isLoggedIn ? sessionUser?.nama || "Anonim" : "Pengunjung";
+  const profileName = isLoggedIn ? sessionUser?.username || "Anonim" : "Pengunjung";
   const profileSub = isLoggedIn ? sessionUser?.nis || "" : "Akses terbatas";
 
   // Foto user: prioritas fotoProfil, fallback kartu, fallback default
