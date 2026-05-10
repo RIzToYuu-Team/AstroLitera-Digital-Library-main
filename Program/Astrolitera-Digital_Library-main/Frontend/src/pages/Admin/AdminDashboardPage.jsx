@@ -1,5 +1,14 @@
 import React from "react";
 import "./AdminDashboardPage.css";
+import Header from "../../components/Header";
+import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { getSessionUser, clearSessionUser } from "../../utils/session";
+import SideMenu from "../../components/SideMenu";
+import { useState, useEffect } from "react";
+import { supabase } from "../../utils/supabaseClient";
+
+const sessionUser = getSessionUser();
 
 const dashboardSummary = {
   totalBooks: 50,
@@ -40,26 +49,20 @@ const stats = [
 ];
 
 export default function AdminDashboardPage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  if (sessionUser?.role !== "Admin") {
+    return <Navigate to="/home" />;
+  }
   return (
     <div className="admin-dashboard-page">
 
       {/*Header*/}
-      <header className="admin-dashboard-topbar">
-        <div className="admin-dashboard-brand">
-          <div className="admin-dashboard-brand__logo" />
-          <span>AstroLitera</span>
-        </div>
-        <button
-          className="admin-dashboard-menu-btn"
-          type="button"
-          aria-label="Buka menu">
-          <span />
-          <span />
-          <span />
-        </button>
-      </header>
-
-
+      <Header
+        showSearch={false}
+        showMenu={true}
+        onMenuClick={() => setMenuOpen(true)} />
+      <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
       <main className="admin-dashboard-content">
         <section className="admin-dashboard-stats">
           {stats.slice(0, 3).map((item) => (
@@ -72,7 +75,7 @@ export default function AdminDashboardPage() {
             <div className="admin-dashboard-card-title">Statistik Aktivitas</div>
 
             <div className="admin-dashboard-chart-placeholder">
-              
+
               <span>statistik</span>
             </div>
           </div>
@@ -107,3 +110,4 @@ function DashboardStatCard({ item, variant = "" }) {
     </article>
   );
 }
+

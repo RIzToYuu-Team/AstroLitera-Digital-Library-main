@@ -1,5 +1,13 @@
 import React, { useMemo, useState } from "react";
 import "./AdminBookDataPage_v2.css";
+import { Navigate } from "react-router-dom";
+import Header from "../../components/Header";
+import { useNavigate } from "react-router-dom";
+import { getSessionUser, clearSessionUser } from "../../utils/session";
+import SideMenu from "../../components/SideMenu";
+import { supabase } from "../../utils/supabaseClient";
+
+const sessionUser = getSessionUser();
 
 const initialBooks = [
   {
@@ -61,11 +69,16 @@ const formatDateSortValue = (dateString) => {
 };
 
 export default function AdminBookDataPage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [sortMode, setSortMode] = useState("latest");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  if (sessionUser?.role !== "Admin") {
+    return <Navigate to="/home" />;
+  }
   const filteredBooks = useMemo(() => {
     let result = [...initialBooks];
 
@@ -92,13 +105,13 @@ export default function AdminBookDataPage() {
 
     return result;
   }, [query, sortMode]);
-  
-      const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
-  
-      const startIndex = (currentPage - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-  
-      const currentBooks = filteredBooks.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const currentBooks = filteredBooks.slice(startIndex, endIndex);
 
   const handleSortClick = () => {
     setSortMode((current) => {
@@ -110,18 +123,11 @@ export default function AdminBookDataPage() {
 
   return (
     <div className="admin-book-page">
-      <header className="admin-book-topbar">
-        <div className="admin-book-brand">
-          <div className="admin-book-brand__dot" />
-          <span>AstroLitera</span>
-        </div>
-
-        <button className="admin-book-menu-btn" type="button" aria-label="Menu">
-          <span />
-          <span />
-          <span />
-        </button>
-      </header>
+      <Header
+        showSearch={false}
+        showMenu={true}
+        onMenuClick={() => setMenuOpen(true)} />
+      <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <main className="admin-book-content">
         <section className="admin-book-heading">

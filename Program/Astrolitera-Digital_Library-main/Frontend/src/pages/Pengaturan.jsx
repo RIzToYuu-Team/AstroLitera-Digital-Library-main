@@ -21,6 +21,7 @@ export default function Pengaturan() {
     namaLengkap: "",
     email: "",
     nis: "",
+    nip: "",
     tanggalLahir: "",
     jenisKelamin: "",
     fotoProfil: "",
@@ -49,6 +50,7 @@ export default function Pengaturan() {
         namaLengkap: data.username || "",
         email: data.email || "",
         nis: data.nis || "",
+        nip: data.nip || "",
         tanggalLahir: data.tanggal_lahir || "",
         jenisKelamin: data.jenis_kelamin || "",
         fotoProfil: data.foto_profil || "",
@@ -149,13 +151,13 @@ export default function Pengaturan() {
         }
       }
 
-      // Update profile table
       const { error } = await supabase
         .from("profiles")
         .update({
           username: form.namaLengkap,
           email: form.email,
-          nis: form.nis,
+          nis: isAdmin ? null : form.nis,
+          nip: isAdmin ? form.nip : null,
           tanggal_lahir: form.tanggalLahir,
           jenis_kelamin: form.jenisKelamin,
           foto_profil: uploadedUrl,
@@ -164,11 +166,11 @@ export default function Pengaturan() {
 
       if (error) throw error;
 
-      // Update local session
       const updatedSession = {
         ...sessionUser,
         username: form.namaLengkap,
         nis: form.nis,
+        nip: form.nip,
         fotoProfil: uploadedUrl,
       };
 
@@ -187,7 +189,27 @@ export default function Pengaturan() {
     }
   };
   const displayName = form.namaLengkap && form.namaLengkap.trim() !== "" ? form.namaLengkap : "Anonim";
+  const isAdmin = sessionUser?.role === "Admin";
 
+  const identityLabel = isAdmin
+    ? "Nomor Induk Pegawai/NIP"
+    : "Nomor Induk Sekolah/NIS";
+
+  const identityPlaceholder = isAdmin
+    ? "Masukkan NIP"
+    : "Masukkan NIS";
+
+  const identityValue = isAdmin
+    ? form.nip
+    : form.nis;
+
+  const handleIdentityChange = (value) => {
+    if (isAdmin) {
+      updateField("nip", value);
+    } else {
+      updateField("nis", value);
+    }
+  };
   return (
     <div className="settings-root">
       <Header
@@ -264,10 +286,10 @@ export default function Pengaturan() {
                 />
 
                 <Field
-                  label="Nomor Induk Sekolah/NIS"
-                  value={form.nis}
-                  placeholder="Masukkan NIS"
-                  onChange={(v) => updateField("nis", v)}
+                  label={identityLabel}
+                  value={identityValue}
+                  placeholder={identityPlaceholder}
+                  onChange={handleIdentityChange}
                 />
 
                 <Field

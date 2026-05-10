@@ -1,5 +1,14 @@
 import React, { useMemo, useState } from "react";
 import "./AdminUserDataPage.css";
+import Header from "../../components/Header";
+import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { getSessionUser, clearSessionUser } from "../../utils/session";
+import SideMenu from "../../components/SideMenu";
+import { supabase } from "../../utils/supabaseClient";
+
+
+const sessionUser = getSessionUser();
 
 const userData = [
   {
@@ -71,11 +80,17 @@ const tabs = ["Menunggu Persetujuan", "Anggota Aktif"];
 const statusOptions = ["Semua Status", "Disetujui", "Menunggu", "Ditolak"];
 
 export default function AdminUserDataPage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Menunggu Persetujuan");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua Status");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  if (sessionUser?.role !== "Admin") {
+    return <Navigate to="/home" />;
+  }
 
   const filteredUsers = useMemo(() => {
     let result = [...userData];
@@ -122,18 +137,11 @@ export default function AdminUserDataPage() {
 
   return (
     <div className="admin-user-page">
-      <header className="admin-user-topbar">
-        <div className="admin-user-brand">
-          <div className="admin-user-brand__logo" />
-          <span>AstroLitera</span>
-        </div>
-
-        <button className="admin-user-menu-btn" type="button" aria-label="Menu">
-          <span />
-          <span />
-          <span />
-        </button>
-      </header>
+      <Header
+        showSearch={false}
+        showMenu={true}
+        onMenuClick={() => setMenuOpen(true)} />
+      <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <main className="admin-user-content">
         <section className="admin-user-heading">
@@ -304,6 +312,6 @@ export default function AdminUserDataPage() {
           </footer>
         </section>
       </main>
-    </div>
+    </div >
   );
 }

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./SideMenu.css";
-import { ArrowLeft, Home, Bookmark, Clock, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../assets/default-avatar.jpg";
 import { getSessionUser, clearSessionUser } from "../utils/session";
+import {
+  ArrowLeft, Home, Bookmark, Clock, Settings, LayoutDashboard,
+  Users, BookOpen, FileClock, ClipboardList,
+} from "lucide-react";
 
 function SideMenu({ open, onClose }) {
   const navigate = useNavigate();
@@ -18,12 +21,14 @@ function SideMenu({ open, onClose }) {
 
   const isLoggedIn = Boolean(sessionUser?.id);
 
+  const isAdmin = sessionUser?.role === "Admin";
+
   const profileName = isLoggedIn
     ? sessionUser?.username || "Anonim"
     : "Pengunjung";
 
   const profileSub = isLoggedIn
-    ? sessionUser?.nis || ""
+    ? sessionUser?.nis || sessionUser?.nip || "ID tidak tersedia"
     : "Akses terbatas";
 
   const userPhoto = sessionUser?.fotoProfil || sessionUser?.kartu || "";
@@ -79,7 +84,13 @@ function SideMenu({ open, onClose }) {
 
         {/* Menu */}
         <nav className="side-nav">
-          <button type="button" className="side-item" onClick={() => go("/home")}>
+
+          {/* USER MENU */}
+          <button
+            type="button"
+            className="side-item"
+            onClick={() => go("/home")}
+          >
             <Home size={18} />
             <span>Home</span>
           </button>
@@ -110,6 +121,62 @@ function SideMenu({ open, onClose }) {
             <Settings size={18} />
             <span>Pengaturan</span>
           </button>
+
+          {/* ADMIN MENU */}
+          {isAdmin && (
+            <>
+              <div className="side-divider" />
+
+              <div className="side-section-title">
+                Admin Panel
+              </div>
+
+              <button
+                type="button"
+                className="side-item"
+                onClick={() => go("/adminDashboard")}
+              >
+                <LayoutDashboard size={18} />
+                <span>Dashboard</span>
+              </button>
+
+              <button
+                type="button"
+                className="side-item"
+                onClick={() => go("/adminUserData")}
+              >
+                <Users size={18} />
+                <span>Data Pengguna</span>
+              </button>
+
+              <button
+                type="button"
+                className="side-item"
+                onClick={() => go("/adminBookData")}
+              >
+                <BookOpen size={18} />
+                <span>Data Buku</span>
+              </button>
+
+              <button
+                type="button"
+                className="side-item"
+                onClick={() => go("/adminAccessRequest")}
+              >
+                <FileClock size={18} />
+                <span>Permintaan Akses</span>
+              </button>
+
+              <button
+                type="button"
+                className="side-item"
+                onClick={() => go("/adminUserActivity")}
+              >
+                <ClipboardList size={18} />
+                <span>Aktivitas User</span>
+              </button>
+            </>
+          )}
         </nav>
 
         {/* Bottom action */}

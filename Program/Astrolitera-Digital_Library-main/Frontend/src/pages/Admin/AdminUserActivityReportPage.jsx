@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import "./AdminVisitorReportPage.css";
+import "./AdminUserActivityReportPage.css";
+import Header from "../../components/Header";
+import { useNavigate } from "react-router-dom";
+import { getSessionUser, clearSessionUser } from "../../utils/session";
+import SideMenu from "../../components/SideMenu";
+import { supabase } from "../../utils/supabaseClient";
 
-/*
-  - createdAt dipakai untuk fitur urutkan terbaru/terlama.
-  - activity dipakai untuk filter aktivitas.
-  - tabel hanya menampilkan 10 data per halaman.
-*/
+const sessionUser = getSessionUser();
 
 const ITEMS_PER_PAGE = 10;
 
@@ -143,12 +144,18 @@ const activityOptions = [
 
 const sortOptions = ["Terbaru", "Terlama"];
 
-export default function AdminVisitorReportPage() {
+export default function AdminUserActivityReportPage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [activityFilter, setActivityFilter] = useState("Semua Aktivitas");
   const [sortMode, setSortMode] = useState("Terbaru");
   const [currentPage, setCurrentPage] = useState(1);
   const [activities] = useState(dummyActivities);
+
+  if (sessionUser?.role !== "Admin") {
+    return <Navigate to="/home" />;
+  }
 
   const filteredActivities = useMemo(() => {
     const query = searchText.trim().toLowerCase();
@@ -212,21 +219,15 @@ export default function AdminVisitorReportPage() {
   return (
     <div className="admin-report-page">
 
-      <header className="admin-report-topbar">
-        <div className="admin-report-brand">
-          <div className="admin-report-brand__logo" />
-          <span>AstroLitera</span>
-        </div>
-        <button className="admin-report-menu-btn" type="button" aria-label="Menu">
-          <span />
-          <span />
-          <span />
-        </button>
-      </header>
+      <Header
+        showSearch={false}
+        showMenu={true}
+        onMenuClick={() => setMenuOpen(true)} />
+      <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <main className="admin-report-content">
         <section className="admin-report-heading">
-          <h1>Laporan Pengunjung</h1>
+          <h1>Laporan Aktivitas Pengguna</h1>
           <p>Menampilkan aktivitas pengguna dalam sistem perpustakaan digital</p>
         </section>
 

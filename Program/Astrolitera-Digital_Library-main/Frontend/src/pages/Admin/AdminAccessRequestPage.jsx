@@ -1,5 +1,15 @@
 import React, { useMemo, useState } from "react";
 import "./AdminAccessRequestPage.css";
+import { Navigate } from "react-router-dom";
+import Header from "../../components/Header";
+import { useNavigate } from "react-router-dom";
+import { getSessionUser, clearSessionUser } from "../../utils/session";
+import SideMenu from "../../components/SideMenu";
+import { supabase } from "../../utils/supabaseClient";
+
+const sessionUser = getSessionUser();
+
+
 
 const requestData = [
   {
@@ -79,10 +89,16 @@ const requestData = [
 const statusOptions = ["Semua Status", "Disetujui", "Menunggu", "Ditolak"];
 
 export default function AdminAccessRequestPage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua Status");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  if (sessionUser?.role !== "Admin") {
+    return <Navigate to="/home" />;
+  }
 
   const filteredRequests = useMemo(() => {
     return requestData.filter((item) => {
@@ -115,18 +131,11 @@ export default function AdminAccessRequestPage() {
     <div className="admin-access-page">
 
       <div className="admin-access-main">
-        <header className="admin-access-topbar">
-          <div className="admin-access-brand">
-            <div className="admin-access-brand__logo" />
-            <span>AstroLitera</span>
-          </div>
-
-          <button className="admin-access-menu-btn" type="button" aria-label="Menu">
-            <span />
-            <span />
-            <span />
-          </button>
-        </header>
+        <Header
+          showSearch={false}
+          showMenu={true}
+          onMenuClick={() => setMenuOpen(true)} />
+        <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
         <main className="admin-access-content">
           <section className="admin-access-heading">

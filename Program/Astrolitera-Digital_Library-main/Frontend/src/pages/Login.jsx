@@ -53,15 +53,17 @@ function Login() {
         return;
       }
 
-      if (data.status !== "Diterima") {
+      if (data.status !== "Diterima" && data.status !== "Admin") {
         showToast?.("error", "Akun anda belum disetujui, mohon hubungi admin!");
         return;
+      }else {
+        showToast?.("success", "Berhasil Masuk!");
       }
-      showToast?.("success", "Berhasil Masuk!");
 
       setSessionUser({
         id: data.id,
         nis: data.nis,
+        nip: data.nip,
         email: data.email,
         username: data.username,
         role: data.role,
@@ -70,7 +72,14 @@ function Login() {
       })
 
       window.dispatchEvent(new Event("storage"));
-      setTimeout(() => navigate("/home"), 500);
+
+      if (data.role === "Admin") {
+        setTimeout(() => navigate("/adminDashboard"), 500);
+        return;
+      }else {
+        setTimeout(() => navigate("/home"), 500);
+        return;
+      }
 
     } catch (err) {
       console.error(err);

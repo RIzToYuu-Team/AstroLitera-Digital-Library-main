@@ -16,6 +16,11 @@ import SearchResult from "./pages/SearchResult";
 import ViewAllPage from "./pages/ViewAllPage";
 import ResetPassword from "./pages/ResetPassword";
 import Toast, { ToastProvider } from "./components/Toast";
+import AdminDashboardPage from "./pages/Admin/AdminDashboardPage";
+import AdminUserDataPage from "./pages/Admin/AdminUserDataPage";
+import AdminBookDataPage_v2 from "./pages/Admin/AdminBookDataPage_v2";
+import AdminAccessRequestPage from "./pages/Admin/AdminAccessRequestPage";
+import AdminUserActivityReportPage from "./pages/Admin/AdminUserActivityReportPage";
 
 function App() {
   const [toast, setToast] = useState(null);
@@ -62,6 +67,12 @@ function App() {
           {/* reset password */}
           <Route path="/reset-password" element={<ResetPassword />} />
 
+          {/* halaman admin */}
+          <Route path="/adminDashboard" element={<AdminDashboardPage />} />
+          <Route path="/adminUserData" element={<AdminUserDataPage />} />
+          <Route path="/adminBookData" element={<AdminBookDataPage_v2 />} />
+          <Route path="/adminAccessRequest" element={<AdminAccessRequestPage />} />
+          <Route path="/adminUserActivity" element={<AdminUserActivityReportPage />} />
           {/* halaman utama */}
           <Route path="/home" element={<Home />} />
 
