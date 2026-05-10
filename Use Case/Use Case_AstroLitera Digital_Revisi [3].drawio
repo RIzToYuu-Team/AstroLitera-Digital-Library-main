@@ -1,0 +1,121 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="2Pj82K-wtrU42ipcyZWM">
+    <mxGraphModel dx="1407" dy="855" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="VtWssh7XItDdIXHAkUaS-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="540" width="430" x="210" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="VtWssh7XItDdIXHAkUaS-2" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=24;fontStyle=3" value="AstroLitera Digital Library" vertex="1">
+          <mxGeometry height="30" width="330" x="260" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="VtWssh7XItDdIXHAkUaS-4" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Admin" vertex="1">
+          <mxGeometry height="60" width="30" x="710" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="VtWssh7XItDdIXHAkUaS-5" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Siswa" vertex="1">
+          <mxGeometry height="60" width="30" x="130" y="421" as="geometry" />
+        </mxCell>
+        <mxCell id="VtWssh7XItDdIXHAkUaS-10" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Login" vertex="1">
+          <mxGeometry height="40" width="70" x="390" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="VtWssh7XItDdIXHAkUaS-22" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="VtWssh7XItDdIXHAkUaS-10" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="710" y="550" as="sourcePoint" />
+            <mxPoint x="640" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-4" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" value="Login" vertex="1">
+          <mxGeometry height="50" width="105" x="375" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-6" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" value="Memberikan Ulasan Buku" vertex="1">
+          <mxGeometry height="50" width="105" x="310" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-7" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" value="Mengelola&lt;br&gt;&amp;nbsp;Ulasan Buku" vertex="1">
+          <mxGeometry height="50" width="105" x="460" y="601" as="geometry" />
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-8" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" value="Mengelola Data Buku" vertex="1">
+          <mxGeometry height="50" width="105" x="480" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-9" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" value="Mengelola Data Pengguna" vertex="1">
+          <mxGeometry height="50" width="105" x="520" y="660" as="geometry" />
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-10" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" value="Membaca Buku" vertex="1">
+          <mxGeometry height="50" width="105" x="230" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-11" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" value="Meminjam Buku" vertex="1">
+          <mxGeometry height="50" width="105" x="230" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-12" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;entryX=0.145;entryY=0.145;entryDx=0;entryDy=0;entryPerimeter=0;" target="Mr9irxHdIIeXceHxicAx-11" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="160" y="451" as="sourcePoint" />
+            <mxPoint x="393" y="281" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-13" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" value="Wishlist Buku" vertex="1">
+          <mxGeometry height="50" width="105" x="310" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-14" edge="1" parent="1" source="Mr9irxHdIIeXceHxicAx-9" style="endArrow=none;html=1;rounded=0;exitX=0.855;exitY=0.145;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="610" y="681" as="sourcePoint" />
+            <mxPoint x="710" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-15" edge="1" parent="1" source="Mr9irxHdIIeXceHxicAx-8" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="610" y="703" as="sourcePoint" />
+            <mxPoint x="710" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Mr9irxHdIIeXceHxicAx-16" edge="1" parent="1" source="Mr9irxHdIIeXceHxicAx-13" style="endArrow=none;html=1;rounded=0;exitX=0.145;exitY=0.145;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="60" y="608" as="sourcePoint" />
+            <mxPoint x="160" y="451" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eeN7rhnT2enp0PUnHad0-1" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;entryX=0.145;entryY=0.855;entryDx=0;entryDy=0;entryPerimeter=0;" target="Mr9irxHdIIeXceHxicAx-10" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="160" y="450" as="sourcePoint" />
+            <mxPoint x="265" y="607" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eeN7rhnT2enp0PUnHad0-2" edge="1" parent="1" source="Mr9irxHdIIeXceHxicAx-6" style="endArrow=none;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="265" y="528" as="sourcePoint" />
+            <mxPoint x="160" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eeN7rhnT2enp0PUnHad0-3" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" value="Melihat Buku&lt;br&gt;&amp;nbsp;yang Tersedia" vertex="1">
+          <mxGeometry height="50" width="105" x="355" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="eeN7rhnT2enp0PUnHad0-4" edge="1" parent="1" source="Mr9irxHdIIeXceHxicAx-4" style="endArrow=none;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="350" y="485" as="sourcePoint" />
+            <mxPoint x="160" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eeN7rhnT2enp0PUnHad0-5" edge="1" parent="1" source="eeN7rhnT2enp0PUnHad0-3" style="endArrow=none;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="385" y="535" as="sourcePoint" />
+            <mxPoint x="160" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eeN7rhnT2enp0PUnHad0-6" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" value="Melihat Ulasan Buku" vertex="1">
+          <mxGeometry height="50" width="105" x="355" y="561" as="geometry" />
+        </mxCell>
+        <mxCell id="eeN7rhnT2enp0PUnHad0-7" edge="1" parent="1" source="eeN7rhnT2enp0PUnHad0-6" style="endArrow=none;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="385" y="535" as="sourcePoint" />
+            <mxPoint x="160" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eeN7rhnT2enp0PUnHad0-8" edge="1" parent="1" source="Mr9irxHdIIeXceHxicAx-7" style="endArrow=none;html=1;rounded=0;exitX=0.855;exitY=0.855;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="585" y="487" as="sourcePoint" />
+            <mxPoint x="710" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
