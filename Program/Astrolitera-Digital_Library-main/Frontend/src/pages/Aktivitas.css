@@ -160,3 +160,23 @@
 .activity-search input:focus {
   border-color: #e0bc2d;
 }
+
+@media (max-width: 768px) {
+  .aktivitas-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .aktivitas-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .aktivitas-tabs button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}

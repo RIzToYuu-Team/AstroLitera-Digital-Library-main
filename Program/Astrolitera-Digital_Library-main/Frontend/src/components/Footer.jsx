@@ -5,19 +5,25 @@ import "./Footer.css";
 function Footer() {
   return (
     <footer className="footer">
-      <div className="footer-top">
-        <div className="footer-logo">
-          <img src={logoImg} alt="Footer Logo" />
-        </div>
+      <div className="footer-content">
+        <Link to="/home" className="footer-brand">
+          <img src={logoImg} alt="Logo AstroLitera" />
+          <div>
+            <h3>AstroLitera</h3>
+            <p>Digital Library</p>
+          </div>
+        </Link>
 
-        <ul className="footer-menu">
-          <li><Link to="/about">Tentang</Link></li>
-          <li><Link to="/contact">Kontak</Link></li>
-          <li><Link to="/privacyPolicy">Kebijakan</Link></li>
-        </ul>
+        <nav className="footer-menu">
+          <Link to="/about">Tentang Kami</Link>
+          <Link to="/contact">Kontak</Link>
+          <Link to="/privacyPolicy">Kebijakan</Link>
+        </nav>
       </div>
 
-      <p className="footer-copy">&copy; {new Date().getFullYear()} AstroLitera </p>
+      <div className="footer-bottom">
+        <p>&copy; {new Date().getFullYear()} AstroLitera Digital Library</p>
+      </div>
     </footer>
   );
 }

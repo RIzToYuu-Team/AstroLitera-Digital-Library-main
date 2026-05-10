@@ -145,89 +145,31 @@
 /* ===== Body layout ===== */
 .search-body {
   display: flex;
-  gap: 18px;
+  gap: 22px;
   padding: 0 18px 18px;
   align-items: flex-start;
 }
 
-/* Sidebar filter panel */
 .search-filter-panel {
-  width: 300px;
-  min-height: 70vh;
-  background: #3f556b;
-  border-radius: 0;
-  padding: 18px 16px;
+  width: 320px;
+  min-height: auto;
+  height: fit-content;
+
+  background: #294d70;
+  border-radius: 22px;
+
+  padding: 22px;
   color: white;
-}
 
-/* Accordion group */
-.filter-group {
-  margin-bottom: 22px;
-}
-
-.filter-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 0;
-  border: none;
-  background: transparent;
-  color: white;
-  cursor: pointer;
-  font-weight: 800;
-  font-size: 18px;
-}
-
-.filter-chevron {
-  transition: transform 180ms ease;
-  opacity: 0.9;
-}
-
-.filter-chevron.open {
-  transform: rotate(180deg);
-}
-
-/* Options container */
-.filter-body {
-  margin-top: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.filter-body--text {
-  gap: 8px;
-}
-
-/* Pills like screenshot */
-.filter-pill {
-  border: 1.5px solid rgba(255,255,255,0.75);
-  background: transparent;
-  color: white;
-  border-radius: 14px;
-  padding: 10px 14px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.filter-pill.active {
-  background: rgba(255,255,255,0.16);
-  border-color: rgba(255,255,255,0.95);
-}
-
-.filter-placeholder {
-  opacity: 0.8;
-  font-size: 13px;
-  line-height: 1.4;
+  flex-shrink: 0;
 }
 
 /* Results area */
 .search-content {
   flex: 1;
-  padding: 18px 4px;
+  width: 100%;
   min-width: 0;
+  padding-top: 0;
 }
 
 .search-empty {
@@ -378,26 +320,6 @@
     padding: 14px;
   }
 
-  .filter-group {
-    margin-bottom: 14px;
-  }
-
-  .filter-header {
-    font-size: 15px;
-    padding: 8px 0;
-  }
-
-  .filter-body {
-    margin-top: 10px;
-    gap: 9px;
-  }
-
-  .filter-pill {
-    border-radius: 12px;
-    padding: 9px 12px;
-    font-size: 13px;
-  }
-
   .search-empty {
     padding: 18px 12px;
     font-size: 13px;
@@ -412,4 +334,11 @@
   .search-content .kategori-list {
     gap: 12px;
   }
+}
+
+.search-content .kategori-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 24px 20px;
+  align-items: start;
 }
