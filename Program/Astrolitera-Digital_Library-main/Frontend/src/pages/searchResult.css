@@ -166,6 +166,9 @@
 
 /* Results area */
 .search-content {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
   padding-top: 0;
 }
 
@@ -331,4 +334,11 @@
   .search-content .kategori-list {
     gap: 12px;
   }
+}
+
+.search-content .kategori-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 24px 20px;
+  align-items: start;
 }
