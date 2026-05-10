@@ -251,20 +251,33 @@ export default function Pengaturan() {
             <h1 className="settings-title">Biodata</h1>
 
             <div className="settings-main">
-              {/* AVATAR BESAR */}
-              <div className="settings-avatar" onClick={openFilePicker} role="button" tabIndex={0}>
-                <img src={profileImgSrc} alt="avatar" />
-                <div className="settings-avatar-overlay">
-                  <Camera size={28} />
-                  <div>Klik untuk mengganti foto</div>
+              {/* AVATAR */}
+              <div className="settings-avatar-section">
+                <div
+                  className="settings-avatar"
+                  onClick={openFilePicker}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <img src={profileImgSrc} alt="avatar" />
+
+                  <div className="settings-avatar-overlay">
+                    <Camera size={28} />
+                    <div>Klik untuk mengganti foto</div>
+                  </div>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={onPickPhoto}
+                    style={{ display: "none" }}
+                  />
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={onPickPhoto}
-                  style={{ display: "none" }}
-                />
+
+                <p className="settings-avatar-hint">
+                  Klik foto profil untuk mengganti foto
+                </p>
               </div>
 
               {/* FORM */}
@@ -313,7 +326,6 @@ export default function Pengaturan() {
               </div>
             </div>
           </section>
-
         </div>
       </div>
     </div>

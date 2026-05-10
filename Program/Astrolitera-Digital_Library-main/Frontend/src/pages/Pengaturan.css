@@ -268,6 +268,21 @@
   flex-shrink: 0;
 }
 
+.settings-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.settings-avatar-hint {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
 @media (max-width: 1024px) {
   .settings-page {
     padding: 22px 20px 36px;
@@ -407,6 +422,16 @@
     padding: 0 18px;
     font-size: 16px;
     border-radius: 12px;
+  }
+
+  .settings-avatar-hint{
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  .settings-avatar-hint {
+    font-size: 12px;
+    margin-top: 10px;
   }
 }
 
