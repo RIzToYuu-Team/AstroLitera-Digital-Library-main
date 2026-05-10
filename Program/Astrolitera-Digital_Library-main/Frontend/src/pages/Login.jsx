@@ -6,6 +6,7 @@ import bookImg from "../assets/book.png";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabaseClient.jsx";
 import { useToast } from "../components/Toast";
+import { setSessionUser } from "../utils/session";
 
 function Login() {
   const navigate = useNavigate();
@@ -58,18 +59,17 @@ function Login() {
       }
       showToast?.("success", "Berhasil Masuk!");
 
-      localStorage.setItem(
-        "sessionUser",
-        JSON.stringify({
-          id: data.id,
-          nis: data.nis,
-          email: data.email,
-          username: data.username,
-          role: data.role,
-          status: data.status,
-        })
-      );
-      
+      setSessionUser({
+        id: data.id,
+        nis: data.nis,
+        email: data.email,
+        username: data.username,
+        role: data.role,
+        status: data.status,
+        fotoProfil: data.foto_profil,
+      })
+
+      window.dispatchEvent(new Event("storage"));
       setTimeout(() => navigate("/home"), 500);
 
     } catch (err) {

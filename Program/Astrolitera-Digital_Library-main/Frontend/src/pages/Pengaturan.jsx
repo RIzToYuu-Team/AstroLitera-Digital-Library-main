@@ -1,39 +1,64 @@
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import "./Pengaturan.css";
 import Header from "../components/Header";
 import SideMenu from "../components/SideMenu";
 import defaultAvatar from "../assets/default-avatar.jpg";
-import { BadgeCheck, Camera, Eye, EyeOff } from "lucide-react";
+import { BadgeCheck, Camera } from "lucide-react";
 import { useToast } from "../components/Toast";
 import { supabase } from "../utils/supabaseClient";
+import { getSessionUser, setSessionUser } from "../utils/session";
 
 export default function Pengaturan() {
   const showToast = useToast();
+  const fileInputRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const sessionUser = getSessionUser();
+  const [oldPhotoUrl, setOldPhotoUrl] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
 
-  const sessionUser = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem("sessionUser") || "null");
-    } catch {
-      return null;
-    }
-  }, []);
-
-  // Form: kosongin value default, pakai placeholder (kecuali kalau ada data dari user)
   const [form, setForm] = useState({
-    namaLengkap: sessionUser?.username || "",
-    email: sessionUser?.email || "",
-    nis: sessionUser?.nis || "",
-    tanggalLahir: sessionUser?.tanggalLahir || "",
-    jenisKelamin: sessionUser?.jenisKelamin || "",
-    fotoProfil: sessionUser?.fotoProfil || "",
+    namaLengkap: "",
+    email: "",
+    nis: "",
+    tanggalLahir: "",
+    jenisKelamin: "",
+    fotoProfil: "",
   });
 
-  // Preview foto: ikuti form (langsung update saat upload)
-  const profileImgSrc = form.fotoProfil && form.fotoProfil.trim() !== "" ? form.fotoProfil : defaultAvatar;
+  const profileImgSrc =
+    form.fotoProfil && form.fotoProfil.trim() !== ""
+      ? form.fotoProfil
+      : defaultAvatar;
+  useEffect(() => {
+    async function fetchProfile() {
+      if (!sessionUser?.id) return;
 
-  const fileInputRef = useRef(null);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", sessionUser.id)
+        .single();
+
+      if (error || !data) {
+        showToast?.("error", "Gagal memuat data profil");
+        return;
+      }
+
+      setForm({
+        namaLengkap: data.username || "",
+        email: data.email || "",
+        nis: data.nis || "",
+        tanggalLahir: data.tanggal_lahir || "",
+        jenisKelamin: data.jenis_kelamin || "",
+        fotoProfil: data.foto_profil || "",
+      });
+
+      setOldPhotoUrl(data.foto_profil || "");
+    }
+
+    fetchProfile();
+  }, [sessionUser?.id]);
 
   const updateField = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -47,51 +72,120 @@ export default function Pengaturan() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validasi ringan (optional)
     if (!file.type.startsWith("image/")) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = String(reader.result || "");
-      updateField("fotoProfil", base64);
-    };
-    reader.readAsDataURL(file);
-  };
+    setSelectedFile(file);
 
-  const handleSave = () => {
-    // Simpan ke sessionUser (menu & halaman lain baca dari sini)
-    const nextSession = {
-      ...(sessionUser || {}),
-      namaLengkap: form.username,
-      email: form.email, // nama tampilan dipakai buat SideMenu
-      nis: form.nis,
-      tanggalLahir: form.tanggalLahir,
-      jenisKelamin: form.jenisKelamin,
-      fotoProfil: form.fotoProfil,
-    };
-
-    localStorage.setItem("sessionUser", JSON.stringify(nextSession));
-
-    // Optional: update juga di users[] kalau kamu mau konsisten
-    try {
-      const usersRaw = localStorage.getItem("users");
-      const users = usersRaw ? JSON.parse(usersRaw) : [];
-      if (Array.isArray(users) && nextSession?.nis) {
-        const idx = users.findIndex((u) => String(u.nis) === String(nextSession.nis));
-        if (idx >= 0) {
-          users[idx] = { ...users[idx], ...nextSession };
-          localStorage.setItem("users", JSON.stringify(users));
-        }
-      }
-    } catch {
-      // ignore
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
     }
 
-    showToast?.("success", "Perubahan disimpan");
+    const newPreview = URL.createObjectURL(file);
+
+    setPreviewUrl(newPreview);
+
+    setForm((prev) => ({
+      ...prev,
+      fotoProfil: newPreview,
+    }));
+
+    e.target.value = "";
   };
 
-  // Kalau sessionUser null, untuk sekarang tetep render UI (biar kamu desain dulu)
-  // Nanti kamu bisa bungkus dengan guard.
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  function getFilePathFromUrl(url) {
+    if (!url) return null;
+    const marker = "/foto_profil/";
+    const index = url.indexOf(marker);
+    if (index === -1) return null;
+    return url.substring(index + marker.length);
+  }
+
+  const handleSave = async () => {
+    if (!sessionUser?.id) {
+      showToast?.("error", "User tidak valid");
+      return;
+    }
+
+    try {
+      let uploadedUrl = form.fotoProfil;
+
+      const oldFilePath = getFilePathFromUrl(oldPhotoUrl);
+
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split(".").pop();
+        const fileName = `${sessionUser.id}-${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("foto_profil")
+          .upload(fileName, selectedFile, {
+            upsert: true,
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from("foto_profil")
+          .getPublicUrl(fileName);
+
+        uploadedUrl = publicUrlData.publicUrl;
+
+        if (oldFilePath) {
+          const { data: removeData, error: removeError } =
+            await supabase.storage
+              .from("foto_profil")
+              .remove([oldFilePath]);
+          if (removeError) {
+            console.error(removeError);
+            showToast?.("warning", "Gagal menghapus foto lama, tapi perubahan tetap disimpan");
+          }
+        }
+      }
+
+      // Update profile table
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          username: form.namaLengkap,
+          email: form.email,
+          nis: form.nis,
+          tanggal_lahir: form.tanggalLahir,
+          jenis_kelamin: form.jenisKelamin,
+          foto_profil: uploadedUrl,
+        })
+        .eq("id", sessionUser.id);
+
+      if (error) throw error;
+
+      // Update local session
+      const updatedSession = {
+        ...sessionUser,
+        username: form.namaLengkap,
+        nis: form.nis,
+        fotoProfil: uploadedUrl,
+      };
+
+      setSessionUser(updatedSession);
+
+      window.dispatchEvent(new Event("storage"));
+
+      setSelectedFile(null);
+      setOldPhotoUrl(uploadedUrl);
+
+      showToast?.("success", "Perubahan disimpan");
+
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal menyimpan perubahan");
+    }
+  };
   const displayName = form.namaLengkap && form.namaLengkap.trim() !== "" ? form.namaLengkap : "Anonim";
 
   return (
@@ -214,39 +308,6 @@ function Field({ label, value, placeholder, onChange, type = "text" }) {
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
       />
-    </div>
-  );
-}
-
-function PasswordField({
-  label,
-  value,
-  placeholder,
-  onChange,
-  showPassword,
-  onToggle,
-}) {
-  return (
-    <div className="settings-field">
-      <label>{label}</label>
-
-      <div className="settings-password-wrap">
-        <input
-          type={showPassword ? "text" : "password"}
-          value={value}
-          placeholder={placeholder}
-          onChange={(e) => onChange(e.target.value)}
-        />
-
-        <button
-          type="button"
-          className="settings-password-toggle"
-          onClick={onToggle}
-          aria-label={showPassword ? "Sembunyikan kata sandi" : "Lihat kata sandi"}
-        >
-          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-        </button>
-      </div>
     </div>
   );
 }

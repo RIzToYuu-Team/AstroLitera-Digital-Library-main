@@ -7,8 +7,12 @@ import SideMenu from "../components/SideMenu";
 import bannerImg from "../assets/banner.png";
 import BookRow from "../components/BookRow";
 import { books, toCardBook } from "../data/Books";
+import { useToast } from "../components/Toast";
+import { supabase } from "../utils/supabaseClient";
+import { getSessionUser } from "../utils/session";
 
 function HomePage() {
+  const sessionUser = getSessionUser();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
