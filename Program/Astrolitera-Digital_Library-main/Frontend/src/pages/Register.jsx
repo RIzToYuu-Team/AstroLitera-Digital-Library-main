@@ -102,7 +102,7 @@ function Register() {
       !form.password.trim() ||
       !kartu
     ) {
-      showToast("error", "Data belum lengkap.");
+      showToast?.("error", "Data belum lengkap.");
       return;
     }
     const pwErr = getPasswordError();
@@ -134,11 +134,11 @@ function Register() {
         console.error("PROFILE ERROR:", profileError);
         throw profileError;
       }
-      showToast("success", "Berhasil daftar!");
+      showToast?.("success", "Berhasil daftar!");
       navigate("/login");
     } catch (err) {
       console.error(err);
-      showToast("error", err.message);
+      showToast?.("error", err.message);
     }
   }
   return (

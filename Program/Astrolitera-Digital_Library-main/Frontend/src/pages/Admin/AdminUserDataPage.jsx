@@ -1,126 +1,93 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./AdminUserDataPage.css";
+import { useToast } from "../../components/Toast";
 import Header from "../../components/Header";
-import { useNavigate } from "react-router-dom";
-import { Navigate } from "react-router-dom";
-import { getSessionUser, clearSessionUser } from "../../utils/session";
 import SideMenu from "../../components/SideMenu";
+import { Navigate } from "react-router-dom";
+import { getSessionUser } from "../../utils/session";
 import { supabase } from "../../utils/supabaseClient";
 
-
-const sessionUser = getSessionUser();
-
-const userData = [
-  {
-    id: 1,
-    photo:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80",
-    name: "Anonim",
-    nis: "123456789",
-    date: "00 - 00 - 0000",
-    status: "Menunggu",
-  },
-  {
-    id: 2,
-    photo:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80",
-    name: "Anonim",
-    nis: "123456789",
-    date: "00 - 00 - 0000",
-    status: "Menunggu",
-  },
-  {
-    id: 3,
-    photo:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80",
-    name: "Anonim",
-    nis: "123456789",
-    date: "00 - 00 - 0000",
-    status: "Menunggu",
-  },
-  {
-    id: 4,
-    photo:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80",
-    name: "Anonim",
-    nis: "123456789",
-    date: "00 - 00 - 0000",
-    status: "Menunggu",
-  },
-  {
-    id: 5,
-    photo:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80",
-    name: "Anonim",
-    nis: "123456789",
-    date: "00 - 00 - 0000",
-    status: "Menunggu",
-  },
-  {
-    id: 6,
-    photo:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80",
-    name: "Anonim",
-    nis: "123456789",
-    date: "00 - 00 - 0000",
-    status: "Menunggu",
-  },
-  {
-    id: 7,
-    photo:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80",
-    name: "Anonim",
-    nis: "123456789",
-    date: "00 - 00 - 0000",
-    status: "Menunggu",
-  },
-];
-
 const tabs = ["Menunggu Persetujuan", "Anggota Aktif"];
-const statusOptions = ["Semua Status", "Disetujui", "Menunggu", "Ditolak"];
+const statusOptions = ["Semua Status", "Diterima", "Pending", "Ditolak"];
 
 export default function AdminUserDataPage() {
+  const sessionUser = getSessionUser();
+  const showToast = useToast();
   const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Menunggu Persetujuan");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua Status");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [users, setUsers] = useState([]);
+  const itemsPerPage = 10;
 
   if (sessionUser?.role !== "Admin") {
     return <Navigate to="/home" />;
   }
 
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  async function fetchUsers() {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      setUsers(data || []);
+
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal memuat data pengguna");
+    } finally {
+      setCurrentPage(1);
+    }
+  }
+
   const filteredUsers = useMemo(() => {
-    let result = [...userData];
+    let result = [...users];
 
     if (query.trim()) {
       const lowerQuery = query.toLowerCase();
+
       result = result.filter(
         (item) =>
-          item.name.toLowerCase().includes(lowerQuery) ||
-          item.nis.toLowerCase().includes(lowerQuery)
+          item.username?.toLowerCase().includes(lowerQuery) ||
+          String(item.nis || "")
+            .toLowerCase()
+            .includes(lowerQuery) ||
+          String(item.nip || "")
+            .toLowerCase()
+            .includes(lowerQuery)
       );
     }
 
     if (activeTab === "Menunggu Persetujuan") {
-      result = result.filter((item) => item.status === "Menunggu");
+      result = result.filter(
+        (item) => item.status === "Pending"
+      );
     }
 
     if (activeTab === "Anggota Aktif") {
-      result = result.filter((item) =>
-        ["Disetujui", "Ditolak", "Menunggu"].includes(item.status)
+      result = result.filter(
+        (item) =>
+          item.status === "Diterima" ||
+          item.status === "Ditolak"
       );
     }
 
     if (statusFilter !== "Semua Status") {
-      result = result.filter((item) => item.status === statusFilter);
+      result = result.filter(
+        (item) => item.status === statusFilter
+      );
     }
 
     return result;
-  }, [activeTab, query, statusFilter]);
-
+  }, [users, activeTab, query, statusFilter]);
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
@@ -128,9 +95,58 @@ export default function AdminUserDataPage() {
   const endIndex = startIndex + itemsPerPage;
 
   const currentUser = filteredUsers.slice(startIndex, endIndex);
+  function handleViewUser(user) {
+    showToast?.("info", `
+    Nama: ${user.username}
+    Email: ${user.email}
+    Status: ${user.status}
+    `, 3000);
+  }
+
+  async function handleApproveUser(id) {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          status: "Diterima"
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+      showToast?.("success", "Pengguna berhasil diterima", 3000);
+      fetchUsers();
+
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal menyetujui pengguna", 3000);
+    }
+  }
+
+  async function handleDeleteUser(id) {
+    const confirmed = window.confirm("Yakin ingin menghapus pengguna ini?");
+
+    if (!confirmed) return;
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      setUsers((prev) =>
+        prev.filter((user) => user.id !== id)
+      );
+
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal menghapus user", 3000);
+    }
+  }
 
   const getStatusClassName = (status) => {
-    if (status === "Disetujui") return "is-approved";
+    if (status === "Diterima") return "is-approved";
     if (status === "Ditolak") return "is-rejected";
     return "is-pending";
   };
@@ -212,15 +228,19 @@ export default function AdminUserDataPage() {
                       <td>
                         <img
                           className="admin-user-avatar"
-                          src={item.photo}
-                          alt={item.name}
+                          src={item.foto_profil || "/default-avatar.jpg"}
+                          alt={item.username}
                         />
                       </td>
                       <td>
-                        <strong className="admin-user-name">{item.name}</strong>
+                        <strong className="admin-user-name">
+                          {item.username}
+                        </strong>
                       </td>
-                      <td>{item.nis}</td>
-                      <td>{item.date}</td>
+                      <td>{item.nis || item.nip || "-"}</td>
+                      <td>
+                        {new Date(item.created_at).toLocaleDateString("id-ID")}
+                      </td>
                       {activeTab === "Anggota Aktif" && (
                         <td>
                           <span
@@ -236,23 +256,25 @@ export default function AdminUserDataPage() {
                         <div className="admin-user-actions">
                           {activeTab === "Menunggu Persetujuan" ? (
                             <>
-                              <button type="button" className="is-edit">
-                                Edit
+                              <button
+                                type="button"
+                                className="is-edit"
+                                onClick={() => handleApproveUser(item.id)}
+                              >
+                                Setujui
                               </button>
                               <button type="button" className="is-delete">
                                 Hapus
-                              </button>
-                              <button type="button" className="is-view">
-                                Lihat
                               </button>
                             </>
                           ) : (
                             <>
-                              <button type="button" className="is-delete">
+                              <button
+                                type="button"
+                                className="is-delete"
+                                onClick={() => handleDeleteUser(item.id)}
+                              >
                                 Hapus
-                              </button>
-                              <button type="button" className="is-view">
-                                Lihat
                               </button>
                             </>
                           )}
@@ -275,8 +297,11 @@ export default function AdminUserDataPage() {
 
           <footer className="admin-user-footer">
             <span>
-              Menampilkan {filteredUsers.length === 0 ? 0 : 1}-{Math.min(endIndex, filteredUsers.length)} dari{" "}
-              120 data
+              Menampilkan{" "}
+              {filteredUsers.length === 0 ? 0 : startIndex + 1}
+              -
+              {Math.min(endIndex, filteredUsers.length)} dari{" "}
+              {filteredUsers.length} data
             </span>
 
             <div className="admin-user-pagination">
@@ -304,7 +329,7 @@ export default function AdminUserDataPage() {
                 onClick={() =>
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
-                disabled={currentPage === totalPages}
+                disabled={currentPage >= totalPages || totalPages === 0}
               >
                 ›
               </button>

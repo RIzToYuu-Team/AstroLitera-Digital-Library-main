@@ -225,7 +225,7 @@ export default function AdminAccessRequestPage() {
                         </td>
                         <td>
                           <div className="admin-access-actions">
-                            {item.status === "Menunggu" && (
+                            {item.status === "Pending" && (
                               <>
                                 <button type="button" className="is-approve">
                                   Setujui
@@ -236,7 +236,7 @@ export default function AdminAccessRequestPage() {
                               </>
                             )}
 
-                            {item.status === "Disetujui" && (
+                            {item.status === "Diterima" && (
                               <button type="button" className="is-reject">
                                 Tolak
                               </button>

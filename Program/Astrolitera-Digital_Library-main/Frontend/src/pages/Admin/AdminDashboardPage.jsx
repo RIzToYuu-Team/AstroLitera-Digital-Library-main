@@ -70,7 +70,7 @@ export default function AdminDashboardPage() {
           ))}
         </section>
 
-        <section className="admin-dashboard-bottom">
+        <section className="wadmin-dashboard-bottom">
           <div className="admin-dashboard-chart-card">
             <div className="admin-dashboard-card-title">Statistik Aktivitas</div>
 
