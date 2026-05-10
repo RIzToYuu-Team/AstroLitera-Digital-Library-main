@@ -4,15 +4,6 @@ import { ArrowLeft, Home, Bookmark, Clock, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../assets/default-avatar.jpg"; 
 
-/**
- * SideMenu rules:
- * - Avatar selalu <img>
- * - Guest (belum login) -> pakai default avatar
- * - Logged-in -> pakai fotoProfil/kartu jika ada, kalau tidak ada -> default avatar
- *
- * NOTE: NIS, nama, foto profil nantinya bisa diambil dari halaman Pengaturan.
- */
-
 const DEFAULT_AVATAR_SRC = defaultAvatar;
 
 function SideMenu({ open, onClose }) {

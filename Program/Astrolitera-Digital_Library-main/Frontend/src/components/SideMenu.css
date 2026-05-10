@@ -13,15 +13,30 @@
   left: -320px;
   width: 300px;
   height: 100vh;
+  max-height: 100vh;
   background: #0d1321;
   color: #fff;
   z-index: 9999;
   transition: left 240ms ease;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
-.side-drawer.open{ left: 0; }
+.side-drawer::-webkit-scrollbar {
+  width: 5px;
+}
+
+.side-drawer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+}
+
+.side-drawer.open{ 
+  left: 0; 
+}
 
 /* Top bar */
 .side-top{

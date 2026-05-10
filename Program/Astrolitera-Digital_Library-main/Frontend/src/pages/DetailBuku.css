@@ -1,8 +1,11 @@
 .detail-container {
   padding-top: 74px;
   padding-left: 20px;
-  padding-right: 30px;
+  padding-right: 0;
+  position: relative;
   font-family: Arial, sans-serif;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .back-btn {
@@ -80,7 +83,7 @@
 
 .bookmark-btn {
   position: absolute;
-  right: 0;
+  right: 25px;
   top: 5px;
   cursor: pointer;
 }
@@ -108,7 +111,7 @@
   margin-top: -165px;
   margin-left: 20px;
   z-index: 3;
-  font-size: px;
+  font-size: 14px;
   text-align: justify;
 }
 
@@ -132,13 +135,23 @@
 }
 
 .content-box {
-    background: #162b45;
-    color: white;
-    position: relative;
-    width: 83%;
-    margin-left: 300px;
-    border-radius: 0;
-    z-index: 1;
+  background: #162b45;
+  color: white;
+  position: relative;
+
+  width: calc(100% - 300px);
+  margin-left: 300px;
+
+  border-radius: 0;
+  z-index: 1;
+
+  height: calc(100vh - 245px);
+  overflow: hidden;
+}
+
+.normal-mode,
+.ulasan-mode {
+    padding-bottom: 120px;
 }
 
 .normal-mode {
@@ -152,7 +165,6 @@
     margin-top: -200px;    /* Turunin sedikit biar ulasan tidak kepotong */
     min-height: 10px;     /* Tinggi lebih besar untuk daftar ulasan */
     overflow-y: visible;   /* Biar tidak muncul scrollbar */
-    padding-top: px;
     padding-bottom: 68px;
 }
 
@@ -174,7 +186,7 @@
 .read-btn {
   position: absolute;
   right: 50px;
-  bottom: 40px;
+  bottom: 80px;
   padding: 20px 42px;
   background: #d7a220;
   border: none;
@@ -353,9 +365,7 @@
 .ulasan-wrapper::-webkit-scrollbar-thumb:hover {
   background: #aaa;
 }
-/* ============================== */
-/* 🔔 NOTIFIKASI BOOKMARK */
-/* ============================== */
+
 .toast-notif {
   position: fixed;
   top: 20px;
@@ -378,4 +388,257 @@
   10% { opacity: 1; transform: translate(-50%, 0); }
   90% { opacity: 1; }
   100% { opacity: 0; transform: translate(-50%, -10px); }
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+@media (max-width: 1024px) {
+  html,
+  body,
+  #root {
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .detail-container {
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+}
+
+@media (max-width: 768px) {
+  html,
+  body,
+  #root {
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .detail-container {
+    padding: 72px 0 0;
+    background: #f5f7fb;
+    overflow-x: hidden;
+  }
+
+  .back-btn {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    background: transparent;
+    color: #1b2b44;
+    border: none;
+    box-shadow: none;
+    z-index: 999;
+  }
+
+  .bookmark-btn {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    z-index: 999;
+  }
+
+  .detail-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 0 0 28px;
+  }
+
+  .detail-cover {
+    width: min(72vw, 260px);
+    max-height: 360px;
+    margin: 0;
+    border-radius: 14px;
+    object-fit: cover;
+    box-shadow: 0 12px 24px rgba(27, 43, 68, 0.18);
+  }
+
+  .detail-info {
+    width: 100%;
+    text-align: center;
+  }
+
+  .detail-info h2 {
+    margin: 0;
+    font-size: 30px;
+    line-height: 1.2;
+    color: #1b2b44;
+  }
+
+  .detail-author {
+    margin-top: 6px;
+    font-size: 15px;
+    color: #555;
+  }
+
+  .detail-rating {
+    justify-content: center;
+    margin: 10px 0;
+  }
+
+  .status {
+    display: inline-block;
+    padding: 7px 16px;
+    border-radius: 18px;
+    font-size: 13px;
+  }
+
+  .genre-row {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .genre {
+    padding: 7px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+  }
+
+  .tabs {
+    width: 100%;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    background: #ffffff;
+    border-radius: 22px 22px 0 0;
+    overflow: hidden;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .tab-btn,
+  .tab-btn.active {
+    margin: 0;
+    width: 100%;
+    justify-content: center;
+    padding: 16px 6px;
+    border-radius: 0;
+    border: none;
+    border-right: 1px solid #ddd;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1b2b44;
+  }
+
+  .tab-btn:last-child {
+    border-right: none;
+  }
+
+  .tab-btn.active {
+    color: #f1c232;
+    border-bottom: 4px solid #f1c232;
+  }
+
+  .tab-btn.active svg {
+    color: #f1c232;
+  }
+
+  .content-box {
+    width: 100vw;
+    margin-left: 50%;
+    border-radius: 0;
+    background: #162b45;
+    color: white;
+  }
+
+  .normal-mode,
+  .ulasan-mode {
+    margin: 0;
+    min-height: auto;
+    padding: 28px 20px;
+  }
+
+  .sinopsis {
+    width: 100%;
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: white;
+  }
+
+  .info-grid {
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    font-size: 14px;
+    color: white;
+  }
+
+  .read-btn {
+    position: static;
+    width: 100%;
+    margin-top: 28px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    background: #f1c232;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .ulasan-wrapper {
+    padding: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .ulasan-input-box {
+    margin: 0;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  html,
+  body,
+  #root {
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .detail-container {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: visible;
+  }
+
+  .detail-cover {
+    width: min(76vw, 240px);
+    max-height: 330px;
+  }
+
+  .detail-info h2 {
+    font-size: 28px;
+  }
+
+  .tab-btn,
+  .tab-btn.active {
+    font-size: 12px;
+    padding: 14px 4px;
+  }
+
+  .normal-mode,
+  .ulasan-mode {
+    padding: 24px 18px;
+  }
 }
