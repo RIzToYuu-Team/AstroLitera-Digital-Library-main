@@ -6,9 +6,9 @@
 
 .kategori-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 18px;
-  margin-bottom: 32px;
+  margin-bottom: 48px;
 }
 
 .back-button {
@@ -31,13 +31,16 @@
 }
 
 .view-buttons {
-  margin-left: auto;
+  position: absolute;
+  right: 28px;
+  top: 34px;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
   border-radius: 18px;
   background: #e4e4e5;
+  z-index: 20;
 }
 
 .view-icon {
@@ -60,20 +63,29 @@
 
 .kategori-list {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.kategori-grid,
+.kategori-list {
+  margin-top: 80px;
 }
 
 @media (max-width: 768px) {
   .kategori-container {
     padding: 28px 26px 44px;
   }
-
-  .kategori-header {
-    align-items: flex-start;
-    gap: 14px;
-    margin-bottom: 36px;
+.kategori-grid,
+  .kategori-list {
+    margin-top: 80px;
   }
+.kategori-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 32px;
+}
 
   .kategori-title {
     font-size: 34px;
@@ -81,13 +93,17 @@
   }
 
   .view-buttons {
-    transform: translateY(26px);
     padding: 9px 13px;
   }
 
   .kategori-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 34px 28px;
+  }
+
+  .kategori-list {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
   }
 }
 
@@ -112,7 +128,7 @@
   }
 
   .view-buttons {
-    transform: translateY(30px);
+    transform: translateY(46px);
     gap: 10px;
     padding: 8px 12px;
     border-radius: 16px;
@@ -121,5 +137,10 @@
   .kategori-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 34px 32px;
+  }
+
+  .kategori-list {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
   }
 }
