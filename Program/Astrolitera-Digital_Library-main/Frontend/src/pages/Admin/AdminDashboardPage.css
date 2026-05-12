@@ -5,7 +5,6 @@
   color: #111827;
 }
 
-/*Header*/
 .admin-dashboard-topbar {
   height: 86px;
   background: #243349;
@@ -109,7 +108,7 @@
 .admin-dashboard-stat-main strong {
   font-size: 60px;
   line-height: 1;
-  font-weight: 900;
+  font-weight: 500;
   color: #000000;
 }
 
