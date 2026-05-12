@@ -1,9 +1,13 @@
 .admin-book-page {
   min-height: 100vh;
-  background: #1f1f1f;
+  background: #ebebee;
   font-family: Arial, Helvetica, sans-serif;
   color: #202737;
 }
+
+/* =========================
+   TOPBAR
+========================= */
 
 .admin-book-topbar {
   height: 98px;
@@ -50,6 +54,10 @@
   background: #f2f2f2;
 }
 
+/* =========================
+   MAIN CONTENT
+========================= */
+
 .admin-book-content {
   padding: 28px 32px 34px;
   background: #ebebee;
@@ -86,6 +94,10 @@
   cursor: pointer;
   box-shadow: 0 8px 18px rgba(16, 24, 40, 0.12);
 }
+
+/* =========================
+   TABLE PANEL
+========================= */
 
 .admin-book-panel {
   background: #f6f6f8;
@@ -137,10 +149,9 @@
   gap: 10px;
 }
 
-.admin-book-sort-btn,
-.admin-book-filter-btn {
+.admin-book-sort-select {
   height: 38px;
-  min-width: 110px;
+  min-width: 120px;
   border: none;
   border-radius: 4px;
   padding: 0 14px;
@@ -150,6 +161,14 @@
   background: #e0b71a;
   color: #171717;
 }
+
+.admin-book-sort-select:focus {
+  border-color: #3b82f6;
+}
+
+/* =========================
+   TABLE
+========================= */
 
 .admin-book-table-wrap {
   overflow-x: auto;
@@ -168,7 +187,6 @@
   font-weight: 700;
   color: #202737;
   border-bottom: 2px solid #c8cfdb;
-  background: transparent;
 }
 
 .admin-book-table td {
@@ -179,8 +197,8 @@
 }
 
 .admin-book-cover {
-  width: 50px;
-  height: 70px;
+  width: 150px;
+  height: 190px;
   border-radius: 4px;
   object-fit: cover;
   border: 1px solid #d9dde5;
@@ -257,6 +275,388 @@
   font-weight: 700;
 }
 
+/* =========================
+   MODAL
+========================= */
+
+.admin-book-modal-overlay {
+  position: fixed;
+  top: 98px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ebebee;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 18px 24px;
+  z-index: 998;
+  overflow: hidden;
+}
+
+/* =========================
+   UPLOAD LAYOUT
+========================= */
+
+.admin-book-upload-layout {
+  width: 100%;
+  max-width: 1180px;
+  height: calc(100vh - 134px);
+
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  gap: 18px;
+
+  position: relative;
+}
+
+/* =========================
+   BACK BUTTON
+========================= */
+
+.admin-book-back-btn {
+  position: absolute;
+  top: -4px;
+  left: -10px;
+
+  border: none;
+  background: transparent;
+
+  font-size: 38px;
+  line-height: 1;
+
+  cursor: pointer;
+  color: #111827;
+
+  z-index: 10;
+}
+
+/* =========================
+   LEFT PANEL
+========================= */
+
+.admin-book-cover-panel {
+  background: #f7f7f8;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-book-cover-panel h2 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 700;
+  border-bottom: 1px solid #cfd5df;
+  padding-bottom: 10px;
+}
+
+.admin-book-cover-upload {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+
+  border: 2px dashed #c5cad3;
+  border-radius: 10px;
+
+  overflow: hidden;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #eceef2;
+}
+
+.admin-book-cover-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-book-cover-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+  color: #7c8593;
+  padding: 16px;
+}
+
+.admin-book-cover-placeholder span {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.admin-book-cover-panel small {
+  display: block;
+  margin-top: 10px;
+  font-size: 11px;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* =========================
+   RIGHT PANEL
+========================= */
+
+.admin-book-form-panel {
+  background: #f7f7f8;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-book-form-panel h2 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 700;
+  border-bottom: 1px solid #cfd5df;
+  padding-bottom: 10px;
+}
+
+/* =========================
+   FORM GRID
+========================= */
+
+.admin-book-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.admin-book-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-book-field label,
+.admin-book-upload-file label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.admin-book-field input,
+.admin-book-field textarea,
+.admin-book-field select {
+  width: 100%;
+  box-sizing: border-box;
+
+  border: 1px solid #b8c0cc;
+  border-radius: 6px;
+  background: #f9fafb;
+
+  padding: 10px 12px;
+  font-size: 14px;
+
+  outline: none;
+}
+
+.admin-book-field input:focus,
+.admin-book-field textarea:focus,
+.admin-book-field select:focus {
+  border-color: #2c4b6f;
+}
+
+.admin-book-field textarea {
+  resize: none;
+  min-height: 120px;
+}
+
+/* =========================
+   FILE UPLOAD
+========================= */
+
+.admin-book-upload-file {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-book-upload-box {
+  border: 1px solid #b8c0cc;
+  border-radius: 8px;
+  background: #f9fafb;
+
+  padding: 20px;
+  min-height: 120px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.admin-book-upload-box p {
+  margin-bottom: 12px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.admin-book-upload-box small {
+  margin-top: 12px;
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.admin-book-file-btn {
+  border: 1px solid #8f98a8;
+  background: white;
+
+  padding: 8px 18px;
+  border-radius: 999px;
+
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* =========================
+   SPECIAL FIELDS
+========================= */
+
+.admin-book-synopsis,
+.admin-book-upload-file {
+  grid-column: span 2;
+}
+
+/* =========================
+   SUBMIT BUTTON
+========================= */
+
+.admin-book-submit-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.admin-book-submit-btn {
+  min-width: 180px;
+  height: 46px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #2c4b6f;
+  color: white;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.admin-book-submit-btn:hover {
+  opacity: 0.92;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.admin-book-modal-overlay {
+  position: fixed;
+  top: 98px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background: #ebebee;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding: 24px;
+
+  z-index: 998;
+
+  overflow-y: auto;
+  /* enable scrolling */
+}
+
+/* =========================
+   UPLOAD LAYOUT
+========================= */
+
+.admin-book-upload-layout {
+  width: 100%;
+  max-width: 1180px;
+
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  gap: 24px;
+
+  position: relative;
+
+  padding-top: 20px;
+  padding-left: 56px;
+  /* creates space for back button */
+}
+
+/* =========================
+   BACK BUTTON
+========================= */
+
+.admin-book-back-btn {
+  position: absolute;
+
+  top: 18px;
+  left: 0;
+
+  width: 42px;
+  height: 42px;
+
+  border: none;
+  background: transparent;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 38px;
+  line-height: 1;
+
+  cursor: pointer;
+  color: #111827;
+
+  z-index: 20;
+}
+
+/* =========================
+   PANELS
+========================= */
+
+.admin-book-cover-panel,
+.admin-book-form-panel {
+  background: #f7f7f8;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+/* =========================
+   FORM PANEL SCROLL FIX
+========================= */
+
+.admin-book-form-panel {
+  min-height: fit-content;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
 @media (max-width: 960px) {
   .admin-book-content {
     padding: 22px 18px 28px;
@@ -285,13 +685,60 @@
     width: 100%;
   }
 
-  .admin-book-sort-btn,
-  .admin-book-filter-btn,
+  .admin-book-sort-select {
+    width: 100%;
+  }
+  
   .admin-book-add-btn {
     width: 100%;
   }
 
   .admin-book-pagination {
     justify-content: flex-start;
+  }
+
+  .admin-book-upload-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .admin-book-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-book-synopsis,
+  .admin-book-upload-file {
+    grid-column: span 1;
+  }
+
+  .admin-book-submit-btn {
+    width: 100%;
+  }
+
+  .admin-book-back-btn {
+    left: 0;
+    top: -42px;
+  }
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 960px) {
+  .admin-book-modal-overlay {
+    padding: 18px;
+  }
+
+  .admin-book-upload-layout {
+    grid-template-columns: 1fr;
+    padding-left: 0;
+    padding-top: 52px;
+  }
+
+  .admin-book-back-btn {
+    top: 0;
+    left: 0;
   }
 }

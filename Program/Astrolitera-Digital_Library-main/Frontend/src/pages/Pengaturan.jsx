@@ -24,13 +24,14 @@ export default function Pengaturan() {
     nip: "",
     tanggalLahir: "",
     jenisKelamin: "",
-    fotoProfil: "",
+    foto_profil: "",
   });
 
   const profileImgSrc =
-    form.fotoProfil && form.fotoProfil.trim() !== ""
-      ? form.fotoProfil
+    form.foto_profil && form.foto_profil.trim() !== ""
+      ? form.foto_profil
       : defaultAvatar;
+
   useEffect(() => {
     async function fetchProfile() {
       if (!sessionUser?.id) return;
@@ -53,7 +54,7 @@ export default function Pengaturan() {
         nip: data.nip || "",
         tanggalLahir: data.tanggal_lahir || "",
         jenisKelamin: data.jenis_kelamin || "",
-        fotoProfil: data.foto_profil || "",
+        foto_profil: data.foto_profil || "",
       });
 
       setOldPhotoUrl(data.foto_profil || "");
@@ -88,7 +89,7 @@ export default function Pengaturan() {
 
     setForm((prev) => ({
       ...prev,
-      fotoProfil: newPreview,
+      foto_profil: newPreview,
     }));
 
     e.target.value = "";
@@ -117,7 +118,7 @@ export default function Pengaturan() {
     }
 
     try {
-      let uploadedUrl = form.fotoProfil;
+      let uploadedUrl = form.foto_profil;
 
       const oldFilePath = getFilePathFromUrl(oldPhotoUrl);
 
@@ -171,7 +172,7 @@ export default function Pengaturan() {
         username: form.namaLengkap,
         nis: form.nis,
         nip: form.nip,
-        fotoProfil: uploadedUrl,
+        foto_profil: uploadedUrl,
       };
 
       setSessionUser(updatedSession);
@@ -246,7 +247,6 @@ export default function Pengaturan() {
             </div>
           </aside>
 
-          {/* RIGHT */}
           <section className="settings-content">
             <h1 className="settings-title">Biodata</h1>
 

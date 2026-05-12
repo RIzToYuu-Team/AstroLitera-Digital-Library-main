@@ -31,7 +31,7 @@ function SideMenu({ open, onClose }) {
     ? sessionUser?.nis || sessionUser?.nip || "ID tidak tersedia"
     : "Akses terbatas";
 
-  const userPhoto = sessionUser?.fotoProfil || sessionUser?.kartu || "";
+  const userPhoto = sessionUser?.foto_profil || sessionUser?.kartu || "";
 
   const profileImgSrc =
     userPhoto && userPhoto.trim() !== ""
@@ -55,7 +55,6 @@ function SideMenu({ open, onClose }) {
       {open && <div className="side-overlay" onClick={onClose} />}
 
       <aside className={`side-drawer ${open ? "open" : ""}`} aria-hidden={!open}>
-        {/* Header: back */}
         <div className="side-top">
           <button
             type="button"
@@ -68,7 +67,6 @@ function SideMenu({ open, onClose }) {
           </button>
         </div>
 
-        {/* Profile block */}
         <div className="side-profile">
           <div className="side-avatar">
             <img src={profileImgSrc} alt="Foto profil" />

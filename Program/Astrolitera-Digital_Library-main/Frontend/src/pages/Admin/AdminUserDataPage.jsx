@@ -97,13 +97,6 @@ export default function AdminUserDataPage() {
   const endIndex = startIndex + itemsPerPage;
 
   const currentUser = filteredUsers.slice(startIndex, endIndex);
-  function handleViewUser(user) {
-    showToast?.("info", `
-    Nama: ${user.username}
-    Email: ${user.email}
-    Status: ${user.status}
-    `, 3000);
-  }
 
   async function handleApproveUser(id) {
     try {
@@ -124,26 +117,73 @@ export default function AdminUserDataPage() {
     }
   }
 
-  async function handleDeleteUser(id) {
-    const confirmed = window.confirm("Yakin ingin menghapus pengguna ini?");
+  async function handleDeleteUser(user) {
+    const confirmed = window.confirm(`Yakin ingin menghapus pengguna "${user.username}"?`);
 
     if (!confirmed) return;
 
     try {
+      if (user.foto_profil) {
+
+        const isStorageFile =
+          user.foto_profil.includes(
+            "/storage/v1/object/public/foto_profil/"
+          );
+
+        if (isStorageFile) {
+          const fotoPath = user.foto_profil
+            .split("/foto_profil/")[1]
+            ?.split("?")[0];
+
+          if (fotoPath) {
+            const { error: fotoError } = await supabase.storage
+              .from("foto_profil")
+              .remove([fotoPath]);
+
+            if (fotoError) {
+              throw fotoError;
+            }
+          }
+        }
+      }
+
+      if (user.kartu_perpustakaan) {
+        const kartuPath = user.kartu_perpustakaan;
+        const { data, error } = await supabase.storage
+          .from("kartu_perpustakaan")
+          .remove([kartuPath]);
+
+        console.log(data);
+
+        if (error) {
+          console.error(error);
+          throw error;
+        }
+      }
+
       const { error } = await supabase
         .from("profiles")
         .delete()
-        .eq("id", id);
+        .eq("id", user.id);
 
       if (error) throw error;
-
       setUsers((prev) =>
-        prev.filter((user) => user.id !== id)
+        prev.filter((item) => item.id !== user.id)
+      );
+
+      showToast?.(
+        "success",
+        "User berhasil dihapus",
+        3000
       );
 
     } catch (err) {
       console.error(err);
-      showToast?.("error", "Gagal menghapus user", 3000);
+      showToast?.(
+        "error",
+        err.message || "Gagal menghapus user",
+        3000
+      );
     }
   }
 
@@ -265,7 +305,11 @@ export default function AdminUserDataPage() {
                               >
                                 Setujui
                               </button>
-                              <button type="button" className="is-delete">
+                              <button
+                                type="button"
+                                className="is-delete"
+                                onClick={() => handleDeleteUser(item)}
+                              >
                                 Hapus
                               </button>
                             </>
@@ -274,7 +318,7 @@ export default function AdminUserDataPage() {
                               <button
                                 type="button"
                                 className="is-delete"
-                                onClick={() => handleDeleteUser(item.id)}
+                                onClick={() => handleDeleteUser(item)}
                               >
                                 Hapus
                               </button>

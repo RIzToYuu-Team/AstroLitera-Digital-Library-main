@@ -40,8 +40,8 @@
 
 .settings-profile-img img{
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: 120%;
+  object-fit: fill;
   display: block;
 }
 
@@ -123,7 +123,7 @@
 
 .settings-avatar img{
   width: 100%;
-  height: 100%;
+  height: 120%;
   object-fit: fill;
   display: block;
 }
