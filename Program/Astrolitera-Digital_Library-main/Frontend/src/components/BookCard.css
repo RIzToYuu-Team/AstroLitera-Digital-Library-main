@@ -169,10 +169,6 @@
     width: 145px;
   }
 
-  .book-cover {
-    height: 172px;
-  }
-
   .book-card.list-mode {
     gap: 18px;
   }
@@ -224,10 +220,6 @@
   .book-card {
     padding: 9px;
     border-radius: 12px;
-  }
-
-  .book-cover {
-    height: 152px;
   }
 
   .book-content {

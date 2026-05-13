@@ -1,387 +1,440 @@
 import React, { useState, useEffect } from "react";
 import "./DetailBuku.css";
-import { ArrowLeft, Star, Bookmark, BookOpen, Info, MessageSquare, ThumbsUp, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Star,
+  Bookmark,
+  BookOpen,
+  Info,
+  MessageSquare,
+  Trash2,
+} from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { books } from "../data/Books";
 import { useToast } from "../components/Toast";
 import RequestAccessPopup from "../components/RequestAccessPopup";
+import { supabase } from "../utils/supabaseClient";
+import { getSessionUser } from "../utils/session";
 
 function DetailBuku() {
   const showToast = useToast();
   const navigate = useNavigate();
   const { id } = useParams();
-  const book =
-    books.find((b) => b.id === Number(id)) || books[0];
+  const sessionUser = getSessionUser();
+
+  const [book, setBook] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [tab, setTab] = useState("sinopsis");
-
-  // REQUEST AKSES (AKTIVITAS)
-  const ACCESS_KEY = "bookAccessRequests";
-
-  const readAccessRequests = () => {
-    try {
-      const raw = localStorage.getItem(ACCESS_KEY);
-      const list = raw ? JSON.parse(raw) : [];
-      return Array.isArray(list) ? list : [];
-    } catch {
-      return [];
-    }
-  };
-
-  const writeAccessRequests = (list) => {
-    localStorage.setItem(ACCESS_KEY, JSON.stringify(list));
-    window.dispatchEvent(new Event("bookAccessRequests:changed"));
-  };
-
   const [requestOpen, setRequestOpen] = useState(false);
 
-  const submitAccessRequest = () => {
-    const nowIso = new Date().toISOString();
-    const list = readAccessRequests();
-    const idx = list.findIndex((x) => Number(x.bookId) === Number(book.id));
+  const [bookmarked, setBookmarked] = useState(false);
+  const [wishlistId, setWishlistId] = useState(null);
 
-    if (idx >= 0) {
-      const curr = list[idx] || {};
-      if (curr.status === "menunggu") {
-        showToast?.(
-          "info",
-          "Kamu sudah mengajukan akses untuk buku ini. Silakan cek statusnya di menu Aktivitas."
-        );
-        setRequestOpen(false);
-        return;
+  const [reviews, setReviews] = useState([]);
+  const [newComment, setNewComment] = useState("");
+
+  useEffect(() => {
+    fetchBook();
+    fetchReviews();
+
+    if (sessionUser?.id) {
+      fetchWishlistStatus();
+    }
+  }, [id]);
+
+  async function fetchBook() {
+    try {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from("books")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+
+      setBook(data);
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal memuat detail buku");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function fetchWishlistStatus() {
+    try {
+      const { data, error } = await supabase
+        .from("wishlist")
+        .select("*")
+        .eq("user_id", sessionUser.id)
+        .eq("book_id", id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setBookmarked(true);
+        setWishlistId(data.id);
+      } else {
+        setBookmarked(false);
+        setWishlistId(null);
       }
-      if (curr.status === "disetujui") {
-        showToast?.("success", "Akses buku ini sudah disetujui. Silakan baca dari menu Aktivitas.");
-        setRequestOpen(false);
-        return;
-      }
-      // ditolak -> boleh request ulang
-      list[idx] = { ...curr, status: "menunggu", requestedAt: nowIso };
-      writeAccessRequests(list);
-      showToast?.(
-        "success",
-        "Permintaan akses berhasil diajukan ulang. Silakan cek statusnya di menu Aktivitas."
-      );
-      setRequestOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function toggleBookmark() {
+    if (!sessionUser?.id) {
+      showToast?.("error", "Silakan login terlebih dahulu");
+      navigate("/login");
       return;
     }
 
-    // request baru
-    list.unshift({ bookId: Number(book.id), status: "menunggu", requestedAt: nowIso });
-    writeAccessRequests(list);
+    try {
+      if (bookmarked && wishlistId) {
+        const { error } = await supabase
+          .from("wishlist")
+          .delete()
+          .eq("id", wishlistId);
 
-    showToast?.(
-      "success",
-      "Permintaan akses berhasil diajukan. Silakan cek statusnya di menu Aktivitas."
-    );
-    setRequestOpen(false);
-  };
+        if (error) throw error;
 
+        setBookmarked(false);
+        setWishlistId(null);
+        showToast?.("info", "Dihapus dari Bookmark");
+        return;
+      }
 
-  //LOCAL STORAGE MANAGEMENT
-  const storageKey = "ulasan-" + book.title.replace(/\s+/g, "-").toLowerCase();
+      const { data, error } = await supabase
+        .from("wishlist")
+        .insert([
+          {
+            user_id: sessionUser.id,
+            book_id: book.id,
+          },
+        ])
+        .select()
+        .single();
 
-  const loadUlasan = () => {
-    const saved = localStorage.getItem(storageKey);
-    return saved ? JSON.parse(saved) : null;
-  };
+      if (error) throw error;
 
-  const saveUlasan = (data) => {
-    localStorage.setItem(storageKey, JSON.stringify(data));
-  };
+      setBookmarked(true);
+      setWishlistId(data.id);
+      showToast?.("success", "Ditambahkan ke Bookmark");
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal mengubah bookmark");
+    }
+  }
 
-  const defaultUlasan = [
-    {
-      nama: "Anonim 1",
-      rating: 4,
-      komentar: "Cerita sangat menarik, penuh makna!",
-      like: 16,
-      liked: false,
-      balasan: [
-        { nama: "Anonim A", komentar: "Setuju banget!" },
-        { nama: "Anonim B", komentar: "Keren asli bukunya." },
-      ],
-    },
-    {
-      nama: "Anonim 2",
-      rating: 5,
-      komentar: "Karya masterpiece. Wajib baca!",
-      like: 28,
-      liked: false,
-      balasan: [],
-    },
-  ];
+  async function fetchReviews() {
+    try {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select(`
+          *,
+          profiles:user_id (
+            username
+          )
+        `)
+        .eq("book_id", id)
+        .order("created_at", { ascending: false });
 
-  const [ulasanList, setUlasanList] = useState(() => {
-    const saved = loadUlasan();
-    return saved || defaultUlasan;
-  });
+      if (error) throw error;
 
-  useEffect(() => {
-    saveUlasan(ulasanList);
-  }, [ulasanList]);
+      setReviews(data || []);
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal memuat ulasan");
+    }
+  }
 
-  // INPUT ULASAN PENGGUNA
-  const [newRating, setNewRating] = useState(0);
-  const [newComment, setNewComment] = useState("");
-
-  const kirimUlasanBaru = () => {
-    if (newRating === 0 || newComment.trim() === "") return;
-
-    const newUlasan = {
-      nama: "Pengguna",
-      rating: newRating,
-      komentar: newComment,
-      like: 0,
-      liked: false,
-      balasan: [],
-    };
-
-    setUlasanList([newUlasan, ...ulasanList]);
-    setNewRating(0);
-    setNewComment("");
-  };
-
-  //BALASAN
-  const [replyOpen, setReplyOpen] = useState(null);
-  const [replyText, setReplyText] = useState("");
-
-  const kirimBalasan = (index) => {
-    if (replyText.trim() === "") return;
-
-    const updated = [...ulasanList];
-    updated[index].balasan.push({
-      nama: "Anonim",
-      komentar: replyText,
-    });
-
-    setUlasanList(updated);
-    setReplyText("");
-  };
-
-  //LIKE TOGGLE
-  const handleLike = (index) => {
-    const updated = [...ulasanList];
-    const item = updated[index];
-
-    if (item.liked) {
-      item.like -= 1;
-      item.liked = false;
-    } else {
-      item.like += 1;
-      item.liked = true;
+  async function kirimUlasanBaru() {
+    if (!sessionUser?.id) {
+      showToast?.("error", "Silakan login terlebih dahulu");
+      navigate("/login");
+      return;
     }
 
-    setUlasanList(updated);
-  };
+    if (!newComment.trim()) {
+      showToast?.("error", "Ulasan tidak boleh kosong");
+      return;
+    }
 
-  // HAPUS ULASAN PENGGUNA
-  const deleteUlasan = (index) => {
-    const updated = ulasanList.filter((_, i) => i !== index);
-    setUlasanList(updated);
-  };
+    try {
+      const { error } = await supabase
+        .from("reviews")
+        .insert([
+          {
+            user_id: sessionUser.id,
+            book_id: book.id,
+            review: newComment.trim(),
+          },
+        ]);
 
-  //BOOKMARK STATE + NOTIFIKASI
-  const [bookmarked, setBookmarked] = useState(false);
+      if (error) throw error;
 
-  const toggleBookmark = () => {
-    const newState = !bookmarked;
-    setBookmarked(newState);
+      setNewComment("");
+      await fetchReviews();
 
-    showToast?.(newState ? "success" : "info", newState ? "Ditambahkan ke Bookmark" : "Dihapus dari Bookmark");
-};
+      showToast?.("success", "Ulasan berhasil dikirim");
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal mengirim ulasan");
+    }
+  }
+
+  async function deleteUlasan(reviewId) {
+    const confirmed = window.confirm("Hapus ulasan ini?");
+    if (!confirmed) return;
+
+    try {
+      const { error } = await supabase
+        .from("reviews")
+        .delete()
+        .eq("id", reviewId);
+
+      if (error) throw error;
+
+      setReviews((prev) => prev.filter((item) => item.id !== reviewId));
+      showToast?.("success", "Ulasan berhasil dihapus");
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal menghapus ulasan");
+    }
+  }
+
+  async function submitAccessRequest() {
+    if (!sessionUser?.id) {
+      showToast?.("error", "Silakan login terlebih dahulu");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const { data: existing, error: checkError } = await supabase
+        .from("borrow")
+        .select("*")
+        .eq("user_id", sessionUser.id)
+        .eq("book_id", book.id)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      if (existing) {
+        showToast?.("info", "Kamu sudah pernah mengajukan akses buku ini");
+        setRequestOpen(false);
+        return;
+      }
+
+      const { error } = await supabase
+        .from("borrow")
+        .insert([
+          {
+            user_id: sessionUser.id,
+            book_id: book.id,
+          },
+        ]);
+
+      if (error) throw error;
+
+      showToast?.("success", "Permintaan akses berhasil diajukan");
+      setRequestOpen(false);
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal mengajukan akses buku");
+    }
+  }
+
+  if (loading) {
+    return <div className="detail-container">Memuat data buku...</div>;
+  }
+
+  if (!book) {
+    return <div className="detail-container">Buku tidak ditemukan.</div>;
+  }
+
+  const genreList = book.genre
+    ? String(book.genre).split(",").map((item) => item.trim())
+    : [];
 
   return (
     <div className="detail-container">
-      
       <ArrowLeft className="back-btn" onClick={() => navigate(-1)} />
 
-      {/* BAGIAN ATAS */}
-      <div className="detail-top">
-        <img src={book.cover} className="detail-cover" />
+      <div className="detail-main">
+        <img
+          src={book.cover_url}
+          className="detail-cover"
+          alt={book.title}
+        />
 
-        <div className="detail-info">
-          <h2>{book.title}</h2>
-          <p className="detail-author">{book.author}</p>
+        <div className="detail-right">
+          <div className="detail-info">
+            <h2>{book.title}</h2>
+            <p className="detail-author">{book.author}</p>
 
-          <div className="detail-rating">
-            <Star size={18} fill="#f5c518" color="#f5c518" />
-            <span>{book.rating}/5</span>
-          </div>
-
-          <span className="status">{book.status}</span>
-
-          <div className="genre-row">
-            {book.genre.map((g, i) => (
-              <span key={i} className="genre">{g}</span>
-            ))}
-          </div>
-
-          <Bookmark
-            size={32}
-            className="bookmark-btn"
-            onClick={toggleBookmark}
-            fill={bookmarked ? "#f1c232" : "none"}   // warna kuning kalau aktif
-            color={bookmarked ? "#f1c232" : "#414141ff"}
-            style={{ cursor: "pointer" }}
-          />
-
-        </div>
-      </div>
-
-      {/* TABS */}
-      <div className="tabs">
-        <button
-          className={`tab-btn ${tab === "sinopsis" ? "active" : ""}`}
-          onClick={() => setTab("sinopsis")}
-        >
-          <BookOpen size={18} /> Sinopsis
-        </button>
-
-        <button
-          className={`tab-btn ${tab === "info" ? "active" : ""}`}
-          onClick={() => setTab("info")}
-        >
-          <Info size={18} /> Informasi
-        </button>
-
-        <button
-          className={`tab-btn ${tab === "ulasan" ? "active" : ""}`}
-          onClick={() => setTab("ulasan")}
-        >
-          <MessageSquare size={18} /> Ulasan
-        </button>
-      </div>
-
-      {/* CONTENT BOX */}
-      <div className={`content-box ${tab === "ulasan" ? "ulasan-mode" : "normal-mode"}`}>
-
-        {tab === "sinopsis" && (
-          <p className="sinopsis">{book.synopsis}</p>
-        )}
-
-        {tab === "info" && (
-          <div className="info-grid">
-            <div><strong>Bahasa:</strong><br />{book.language}</div>
-            <div><strong>Tanggal Rilis:</strong><br />{book.publicationDate}</div>
-            <div><strong>Penerbit:</strong><br />{book.publisher}</div>
-            <div><strong>Penulis:</strong><br />{book.author}</div>
-            <div><strong>Jumlah Halaman:</strong><br />{book.page}</div>
-            <div><strong>Format:</strong><br />{book.format}</div>
-          </div>
-        )}
-        {tab === "ulasan" && (
-          <div className="ulasan-wrapper">
-            <div className="ulasan-input-box">
-              <p className="label-ulasan">Berikan Ulasan Anda</p>
-
-              <div className="rating-selector">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    size={26}
-                    fill={newRating > i ? "#f5c518" : "none"}
-                    color="#f5c518"
-                    className="rating-star"
-                    onClick={() => setNewRating(i + 1)}
-                  />
-                ))}
-              </div>
-
-              <textarea
-                className="input-ulasan"
-                value={newComment}
-                placeholder="Tulis pendapatmu…"
-                onChange={(e) => setNewComment(e.target.value)}
-              />
-
-              <button className="kirim-ulasan-btn" onClick={kirimUlasanBaru}>
-                Kirim Ulasan
-              </button>
+            <div className="detail-rating">
+              <Star size={18} fill="#f5c518" color="#f5c518" />
+              <span>{reviews.length > 0 ? reviews.length : "0"} ulasan</span>
             </div>
 
-            {/* LIST ULASAN */}
-            {ulasanList.map((u, index) => (
-              <div key={index} className="ulasan-item">
+            <span className="status">
+              {book.stock > 0 ? "Tersedia" : "Stok Habis"}
+            </span>
 
-                {/* HEADER */}
-                <div className="ulasan-header">
-                  <div className="profile-circle" />
+            <div className="genre-row">
+              {genreList.map((g, i) => (
+                <span key={i} className="genre">
+                  {g}
+                </span>
+              ))}
+            </div>
 
-                  <div>
-                    <p className="nama">{u.nama}</p>
+            <Bookmark
+              size={42}
+              className="bookmark-btn"
+              onClick={toggleBookmark}
+              fill={bookmarked ? "#f1c232" : "none"}
+              color={bookmarked ? "#f1c232" : "#f1c232"}
+              style={{ cursor: "pointer" }}
+            />
+          </div>
 
-                    <div className="rating-small">
-                      {Array.from({ length: u.rating }).map((_, i) => (
-                        <Star key={i} size={14} fill="#f5c518" color="#f5c518" />
-                      ))}
-                    </div>
+          <div className="tabs">
+            <button
+              className={`tab-btn ${tab === "sinopsis" ? "active" : ""}`}
+              onClick={() => setTab("sinopsis")}
+            >
+              <BookOpen size={20} /> Sinopsis
+            </button>
 
-                    <p className="komentar">{u.komentar}</p>
+            <button
+              className={`tab-btn ${tab === "info" ? "active" : ""}`}
+              onClick={() => setTab("info")}
+            >
+              <Info size={20} /> Informasi Buku
+            </button>
 
-                    <div className="ulasan-actions">
+            <button
+              className={`tab-btn ${tab === "ulasan" ? "active" : ""}`}
+              onClick={() => setTab("ulasan")}
+            >
+              <MessageSquare size={20} /> Ulasan
+            </button>
+          </div>
 
-                      <span className="like" onClick={() => handleLike(index)}>
-                        <ThumbsUp
-                          size={16}
-                          fill={u.liked ? "#ffffff" : "none"}
-                          color={u.liked ? "#ffffff" : "#cccccc"}
-                        />
-                        {u.like}
-                      </span>
+          <div className={`content-box ${tab === "ulasan" ? "ulasan-mode" : "normal-mode"}`}>
+            {tab === "sinopsis" && (
+              <p className="sinopsis">
+                {book.synopsis || "Sinopsis belum tersedia."}
+              </p>
+            )}
 
-                      <span
-                        className="balasan-toggle"
-                        onClick={() =>
-                          setReplyOpen(replyOpen === index ? null : index)
-                        }
-                      >
-                        {u.balasan.length} Balasan
-                      </span>
-
-                      {u.nama === "Pengguna" && (
-                        <span className="hapus-btn" onClick={() => deleteUlasan(index)}>
-                          <Trash2 size={16} color="#ff4444" />
-                        </span>
-                      )}
-                    </div>
-                  </div>
+            {tab === "info" && (
+              <div className="info-grid">
+                <div>
+                  <strong>Kategori:</strong>
+                  <br />
+                  {book.category || "-"}
                 </div>
 
-                {replyOpen === index && (
-                  <div className="balasan-list">
-                    {u.balasan.map((b, i) => (
-                      <div key={i} className="balasan-item">
-                        <div className="profile-circle small" />
+                <div>
+                  <strong>Penerbit:</strong>
+                  <br />
+                  {book.publisher || "-"}
+                </div>
+
+                <div>
+                  <strong>Penulis:</strong>
+                  <br />
+                  {book.author || "-"}
+                </div>
+
+                <div>
+                  <strong>Jumlah Halaman:</strong>
+                  <br />
+                  {book.pages || "-"}
+                </div>
+
+                <div>
+                  <strong>ISBN:</strong>
+                  <br />
+                  {book.isbn || "-"}
+                </div>
+
+                <div>
+                  <strong>Stok:</strong>
+                  <br />
+                  {book.stock ?? "-"}
+                </div>
+              </div>
+            )}
+
+            {tab === "ulasan" && (
+              <div className="ulasan-wrapper">
+                <div className="ulasan-input-box">
+                  <p className="label-ulasan">Berikan Ulasan Anda</p>
+
+                  <textarea
+                    className="input-ulasan"
+                    value={newComment}
+                    placeholder="Tulis pendapatmu..."
+                    onChange={(e) => setNewComment(e.target.value)}
+                  />
+
+                  <button className="kirim-ulasan-btn" onClick={kirimUlasanBaru}>
+                    Kirim Ulasan
+                  </button>
+                </div>
+
+                {reviews.length > 0 ? (
+                  reviews.map((u) => (
+                    <div key={u.id} className="ulasan-item">
+                      <div className="ulasan-header">
+                        <div className="profile-circle" />
+
                         <div>
-                          <p className="nama">{b.nama}</p>
-                          <p className="komentar">{b.komentar}</p>
+                          <p className="nama">
+                            {u.profiles?.username || "Anonim"}
+                          </p>
+
+                          <p className="komentar">{u.review}</p>
+
+                          <div className="ulasan-actions">
+                            {sessionUser?.id === u.user_id && (
+                              <span
+                                className="hapus-btn"
+                                onClick={() => deleteUlasan(u.id)}
+                              >
+                                <Trash2 size={16} color="#ff4444" />
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    ))}
-
-                    <div className="balasan-input">
-                      <input
-                        type="text"
-                        placeholder="Ketik balasan…"
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                      />
-                      <button onClick={() => kirimBalasan(index)}>Kirim</button>
                     </div>
-                  </div>
+                  ))
+                ) : (
+                  <p>Belum ada ulasan.</p>
                 )}
               </div>
-            ))}
-          </div>
-        )}
+            )}
 
-        {/* BACA SEKARANG */}
-        {tab !== "ulasan" && (
-          <button className="read-btn" onClick={() => setRequestOpen(true)}>
-            Baca Sekarang
-          </button>
-        )}
+            {tab !== "ulasan" && (
+              <button
+                className="read-btn"
+                onClick={() => setRequestOpen(true)}
+                disabled={book.stock <= 0}
+              >
+                Baca Sekarang
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       <RequestAccessPopup
@@ -390,7 +443,6 @@ function DetailBuku() {
         onClose={() => setRequestOpen(false)}
         onSubmit={submitAccessRequest}
       />
-
     </div>
   );
 }

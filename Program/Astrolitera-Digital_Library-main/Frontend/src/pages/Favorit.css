@@ -134,6 +134,26 @@
   }
 }
 
+.favorit-card-wrap {
+  position: relative;
+}
+
+.favorit-remove-btn {
+  margin-top: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: #f8d7da;
+  color: #842029;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.favorit-remove-btn:hover {
+  opacity: 0.88;
+}
+
 @media (max-width: 480px) {
   .favorit-list.grid {
     grid-template-columns: repeat(2, 1fr);

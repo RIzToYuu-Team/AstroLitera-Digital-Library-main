@@ -4,29 +4,21 @@ import Header from "../components/Header";
 import SideMenu from "../components/SideMenu";
 import BookCard from "../components/BookCard";
 import FilterPanel from "../components/FilterPanel";
-import { books } from "../data/Books";
 import { LayoutGrid, StretchHorizontal } from "lucide-react";
+import { supabase } from "../utils/supabaseClient";
+import { getSessionUser } from "../utils/session";
+import { useToast } from "../components/Toast";
 import "./Favorit.css";
-
-const STORAGE_KEY = "favoriteBooks";
-
-function readFavoriteIds() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const ids = raw ? JSON.parse(raw) : [];
-    return Array.isArray(ids) ? ids : [];
-  } catch {
-    return [];
-  }
-}
 
 function Favorit() {
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const showToast = useToast();
+  const sessionUser = getSessionUser();
 
+  const [menuOpen, setMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState("grid");
   const [searchText, setSearchText] = useState("");
-  const [sortMode, setSortMode] = useState("relevance");
+  const [sortMode, setSortMode] = useState("latest");
   const [filterOpen, setFilterOpen] = useState(false);
 
   const [filters, setFilters] = useState({
@@ -37,77 +29,192 @@ function Favorit() {
     rating: "",
   });
 
-  const [favoriteIds, setFavoriteIds] = useState(() => readFavoriteIds());
+  const [wishlistRows, setWishlistRows] = useState([]);
+  const [favoriteBooks, setFavoriteBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const onChanged = () => setFavoriteIds(readFavoriteIds());
-    window.addEventListener("favoriteBooks:changed", onChanged);
-    return () => window.removeEventListener("favoriteBooks:changed", onChanged);
+    fetchFavorites();
   }, []);
 
-  const favoriteBooks = useMemo(() => {
-    const idSet = new Set(favoriteIds);
-    let list = books.filter((b) => idSet.has(b.id));
+  async function fetchFavorites() {
+    if (!sessionUser?.id) {
+      setWishlistRows([]);
+      setFavoriteBooks([]);
+      setLoading(false);
+      return;
+    }
 
-    if ((searchText || "").trim()) {
+    try {
+      setLoading(true);
+
+      const { data: wishlistData, error: wishlistError } = await supabase
+        .from("wishlist")
+        .select("*")
+        .eq("user_id", sessionUser.id)
+        .order("created_at", { ascending: false });
+
+      if (wishlistError) throw wishlistError;
+
+      const rows = wishlistData || [];
+      setWishlistRows(rows);
+
+      const bookIds = rows
+        .map((item) => item.book_id)
+        .filter(Boolean);
+
+      if (bookIds.length === 0) {
+        setFavoriteBooks([]);
+        return;
+      }
+
+      const { data: booksData, error: booksError } = await supabase
+        .from("books")
+        .select("*")
+        .in("id", bookIds);
+
+      if (booksError) throw booksError;
+
+      const bookMap = new Map(
+        (booksData || []).map((book) => [book.id, book])
+      );
+
+      const orderedBooks = rows
+        .map((row) => {
+          const book = bookMap.get(row.book_id);
+
+          if (!book) return null;
+
+          return {
+            ...book,
+            wishlist_id: row.id,
+            wishlist_status: row.status,
+            wishlist_created_at: row.created_at,
+          };
+        })
+        .filter(Boolean);
+
+      setFavoriteBooks(orderedBooks);
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal memuat data favorit");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleRemoveFavorite(book) {
+    const confirmed = window.confirm(
+      `Hapus "${book.title}" dari favorit?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const { error } = await supabase
+        .from("wishlist")
+        .delete()
+        .eq("id", book.wishlist_id);
+
+      if (error) throw error;
+
+      setFavoriteBooks((prev) =>
+        prev.filter((item) => item.wishlist_id !== book.wishlist_id)
+      );
+
+      setWishlistRows((prev) =>
+        prev.filter((item) => item.id !== book.wishlist_id)
+      );
+
+      showToast?.("success", "Buku dihapus dari favorit");
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal menghapus favorit");
+    }
+  }
+
+  const filteredBooks = useMemo(() => {
+    let list = [...favoriteBooks];
+
+    if (searchText.trim()) {
       const q = searchText.trim().toLowerCase();
-      list = list.filter((b) => {
-        const title = (b.title || "").toLowerCase();
-        const author = (b.author || "").toLowerCase();
-        return title.includes(q) || author.includes(q);
+
+      list = list.filter((book) => {
+        const title = String(book.title || "").toLowerCase();
+        const author = String(book.author || "").toLowerCase();
+        const genre = String(book.genre || "").toLowerCase();
+
+        return (
+          title.includes(q) ||
+          author.includes(q) ||
+          genre.includes(q)
+        );
       });
     }
 
-    list = list.filter((b) => {
-      const category = String(b.category || "").toLowerCase();
-      const title = String(b.title || "").toLowerCase();
-      const author = String(b.author || "").toLowerCase();
-      const year = String(b.year || "");
-      const rating = Number(b.rating || 0);
+    list = list.filter((book) => {
+      const category = String(book.category || "").toLowerCase();
+      const genre = String(book.genre || "").toLowerCase();
+      const author = String(book.author || "").toLowerCase();
+      const year = book.created_at
+        ? String(new Date(book.created_at).getFullYear())
+        : "";
 
       const matchJenis =
         !filters.jenis?.length ||
         filters.jenis.some((jenis) => {
-          if (jenis === "Pelajaran") return category === "pendidikan";
-          if (jenis === "Novel") return category === "novel";
-          if (jenis === "Kamus") return category === "kamus" || title.includes("kamus");
-          return true;
+          const value = String(jenis || "").toLowerCase();
+
+          if (value === "pelajaran") return category === "pelajaran";
+          if (value === "novel") return category === "novel";
+
+          return category === value;
         });
 
       const matchGenre =
-        !filters.genre || category === filters.genre.toLowerCase();
+        !filters.genre ||
+        genre.includes(String(filters.genre).toLowerCase());
 
       const matchPenulis =
-        !filters.penulis || author.includes(filters.penulis.toLowerCase());
+        !filters.penulis ||
+        author.includes(String(filters.penulis).toLowerCase());
 
       const matchTahun =
         !filters.tahun || year === String(filters.tahun);
 
-      const matchRating =
-        !filters.rating || rating >= Number(filters.rating);
-
-      return matchJenis && matchGenre && matchPenulis && matchTahun && matchRating;
+      return matchJenis && matchGenre && matchPenulis && matchTahun;
     });
 
-    if (sortMode === "rating_desc") {
-      list = [...list].sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
-    } else if (sortMode === "az") {
-      list = [...list].sort((a, b) =>
+    if (sortMode === "latest") {
+      list.sort(
+        (a, b) =>
+          new Date(b.wishlist_created_at || b.created_at) -
+          new Date(a.wishlist_created_at || a.created_at)
+      );
+    }
+
+    if (sortMode === "oldest") {
+      list.sort(
+        (a, b) =>
+          new Date(a.wishlist_created_at || a.created_at) -
+          new Date(b.wishlist_created_at || b.created_at)
+      );
+    }
+
+    if (sortMode === "az") {
+      list.sort((a, b) =>
         String(a.title || "").localeCompare(String(b.title || ""))
       );
-    } else if (sortMode === "za") {
-      list = [...list].sort((a, b) =>
+    }
+
+    if (sortMode === "za") {
+      list.sort((a, b) =>
         String(b.title || "").localeCompare(String(a.title || ""))
-      );
-    } else {
-      const order = new Map(favoriteIds.map((id, idx) => [id, idx]));
-      list = [...list].sort(
-        (a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0)
       );
     }
 
     return list;
-  }, [favoriteIds, searchText, filters, sortMode]);
+  }, [favoriteBooks, searchText, filters, sortMode]);
 
   return (
     <div className="favorit-page">
@@ -119,7 +226,7 @@ function Favorit() {
         searchValue={searchText}
         onSearchChange={setSearchText}
         searchPlaceholder="Cari di Favorit..."
-        onSearchSubmit={() => {}}
+        onSearchSubmit={() => { }}
       />
 
       <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
@@ -146,9 +253,12 @@ function Favorit() {
         </div>
 
         <div className="search-sort">
-          <select value={sortMode} onChange={(e) => setSortMode(e.target.value)}>
-            <option value="relevance">Urutkan</option>
-            <option value="rating_desc">Rating tertinggi</option>
+          <select
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value)}
+          >
+            <option value="latest">Terbaru ditambahkan</option>
+            <option value="oldest">Terlama ditambahkan</option>
             <option value="az">A - Z</option>
             <option value="za">Z - A</option>
           </select>
@@ -156,7 +266,7 @@ function Favorit() {
           <button
             className="search-filter-btn"
             type="button"
-            onClick={() => setFilterOpen((v) => !v)}
+            onClick={() => setFilterOpen((value) => !value)}
           >
             Filter
           </button>
@@ -170,31 +280,63 @@ function Favorit() {
           </aside>
         )}
 
-        <main className={`favorit-main ${favoriteBooks.length === 0 ? "is-empty" : "has-books"}`}>
-          {favoriteBooks.length === 0 ? (
+        <main
+          className={`favorit-main ${filteredBooks.length === 0 ? "is-empty" : "has-books"
+            }`}
+        >
+          {loading ? (
+            <div className="favorit-empty">
+              <p>Memuat data favorit...</p>
+            </div>
+          ) : !sessionUser?.id ? (
+            <div className="favorit-empty">
+              <p>Silakan login untuk melihat buku favorit.</p>
+
+              <div className="favorit-empty-actions">
+                <button
+                  className="favorit-primary"
+                  onClick={() => navigate("/login")}
+                >
+                  Login
+                </button>
+              </div>
+            </div>
+          ) : filteredBooks.length === 0 ? (
             <div className="favorit-empty">
               <p>Belum ada buku favorit yang ditambahkan.</p>
 
               <div className="favorit-empty-actions">
-                <button className="favorit-primary" onClick={() => navigate("/search")}>
+                <button
+                  className="favorit-primary"
+                  onClick={() => navigate("/search")}
+                >
                   Cari buku
                 </button>
               </div>
             </div>
           ) : (
             <div className={`favorit-list ${viewMode === "grid" ? "grid" : "list"}`}>
-              {favoriteBooks.map((b) => (
-                <BookCard
-                  key={b.id}
-                  id={b.id}
-                  cover={b.cover}
-                  title={b.title}
-                  author={b.author}
-                  rating={b.rating}
-                  view={viewMode}
-                  genre={b.genre}
-                  synopsis={b.synopsis}
-                />
+              {filteredBooks.map((book) => (
+                <div key={book.wishlist_id || book.id} className="favorit-card-wrap">
+                  <BookCard
+                    id={book.id}
+                    cover={book.cover_url}
+                    title={book.title}
+                    author={book.author}
+                    rating={0}
+                    view={viewMode}
+                    genre={book.genre}
+                    synopsis={book.synopsis}
+                  />
+
+                  <button
+                    type="button"
+                    className="favorit-remove-btn"
+                    onClick={() => handleRemoveFavorite(book)}
+                  >
+                    Hapus dari Favorit
+                  </button>
+                </div>
               ))}
             </div>
           )}
