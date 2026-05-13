@@ -20,18 +20,17 @@ function DetailBuku() {
   const navigate = useNavigate();
   const { id } = useParams();
   const sessionUser = getSessionUser();
-
+  const isAdmin = sessionUser?.role === "Admin";
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [tab, setTab] = useState("sinopsis");
   const [requestOpen, setRequestOpen] = useState(false);
-
   const [bookmarked, setBookmarked] = useState(false);
   const [wishlistId, setWishlistId] = useState(null);
-
   const [reviews, setReviews] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const [borrowStatus, setBorrowStatus] = useState(null);
+  const [borrowData, setBorrowData] = useState(null);
 
   useEffect(() => {
     fetchBook();
@@ -39,8 +38,98 @@ function DetailBuku() {
 
     if (sessionUser?.id) {
       fetchWishlistStatus();
+      fetchBorrowStatus();
     }
   }, [id]);
+
+  async function fetchBorrowStatus() {
+    try {
+      const { data, error } = await supabase
+        .from("borrow")
+        .select("*")
+        .eq("user_id", sessionUser.id)
+        .eq("book_id", id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      setBorrowData(data || null);
+      setBorrowStatus(data?.status || null);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function isBorrowStillValid(borrow) {
+    if (!borrow?.return_date) return true;
+    const now = new Date();
+    const returnDate = new Date(borrow.return_date);
+    return returnDate >= now;
+  }
+
+  function isPelajaranBook() {
+    return String(book?.category || book?.kategori || "")
+      .toLowerCase()
+      .trim() === "pelajaran";
+  }
+
+  function handleReadBook() {
+    if (!sessionUser?.id) {
+      showToast?.("error", "Silakan login terlebih dahulu");
+      navigate("/login");
+      return;
+    }
+
+    if (!book?.file_url) {
+      showToast?.("error", "File buku belum tersedia");
+      return;
+    }
+
+    if (isPelajaranBook()) {
+      navigate("/bookReader", {
+        state: {
+          pdfSrc: book.file_url,
+          title: book.title,
+          bookId: book.id,
+        },
+      });
+
+      return;
+    }
+
+    if (borrowStatus === "Diterima" && isBorrowStillValid(borrowData)) {
+      navigate("/bookReader", {
+        state: {
+          pdfSrc: book.file_url,
+          title: book.title,
+          bookId: book.id,
+        },
+      });
+
+      return;
+    }
+
+    if (borrowStatus === "Pending") {
+      showToast?.(
+        "info",
+        "Permintaan akses buku ini masih menunggu persetujuan admin"
+      );
+      return;
+    }
+
+    if (borrowStatus === "Ditolak") {
+      showToast?.(
+        "info",
+        "Permintaan sebelumnya ditolak. Kamu bisa mengajukan ulang"
+      );
+      setRequestOpen(true);
+      return;
+    }
+
+    setRequestOpen(true);
+  }
 
   async function fetchBook() {
     try {
@@ -220,33 +309,48 @@ function DetailBuku() {
         .select("*")
         .eq("user_id", sessionUser.id)
         .eq("book_id", book.id)
+        .in("status", ["Pending", "Diterima"])
         .maybeSingle();
 
       if (checkError) throw checkError;
 
-      if (existing) {
-        showToast?.("info", "Kamu sudah pernah mengajukan akses buku ini");
+      if (existing?.status === "Pending") {
+        showToast?.("info", "Kamu sudah mengajukan akses buku ini");
         setRequestOpen(false);
         return;
       }
 
-      const { error } = await supabase
+      if (existing?.status === "Diterima") {
+        showToast?.("success", "Akses buku ini sudah diterima");
+        setRequestOpen(false);
+        return;
+      }
+
+      const { data, error } = await supabase
         .from("borrow")
         .insert([
           {
             user_id: sessionUser.id,
             book_id: book.id,
+            status: "Pending",
+            borrow_date: new Date().toISOString(),
+            return_date: null,
           },
-        ]);
+        ])
+        .select()
+        .single();
 
       if (error) throw error;
 
+      setBorrowData(data);
+      setBorrowStatus(data.status);
       showToast?.("success", "Permintaan akses berhasil diajukan");
       setRequestOpen(false);
     } catch (err) {
       console.error(err);
       showToast?.("error", "Gagal mengajukan akses buku");
     }
+    return;
   }
 
   if (loading) {
@@ -405,10 +509,11 @@ function DetailBuku() {
                           <p className="komentar">{u.review}</p>
 
                           <div className="ulasan-actions">
-                            {sessionUser?.id === u.user_id && (
+                            {(sessionUser?.id === u.user_id || isAdmin) && (
                               <span
                                 className="hapus-btn"
                                 onClick={() => deleteUlasan(u.id)}
+                                title={isAdmin && sessionUser?.id !== u.user_id ? "Hapus ulasan user" : "Hapus ulasan"}
                               >
                                 <Trash2 size={16} color="#ff4444" />
                               </span>
@@ -427,10 +532,20 @@ function DetailBuku() {
             {tab !== "ulasan" && (
               <button
                 className="read-btn"
-                onClick={() => setRequestOpen(true)}
-                disabled={book.stock <= 0}
+                onClick={handleReadBook}
+                disabled={
+                  !isPelajaranBook() &&
+                  book.stock <= 0 &&
+                  borrowStatus !== "Diterima"
+                }
               >
-                Baca Sekarang
+                {isPelajaranBook()
+                  ? "Baca Buku"
+                  : borrowStatus === "Diterima" && isBorrowStillValid(borrowData)
+                    ? "Baca Buku"
+                    : borrowStatus === "Pending"
+                      ? "Menunggu Persetujuan"
+                      : "Ajukan Akses"}
               </button>
             )}
           </div>
@@ -446,5 +561,4 @@ function DetailBuku() {
     </div>
   );
 }
-
-export default DetailBuku;
+  export default DetailBuku;

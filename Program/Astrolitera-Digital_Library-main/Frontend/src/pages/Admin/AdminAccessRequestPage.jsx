@@ -6,17 +6,20 @@ import SideMenu from "../../components/SideMenu";
 import { Navigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/session";
 import { supabase } from "../../utils/supabaseClient";
+import defaultAvatar from "../../assets/default-avatar.jpg";
 
 const statusOptions = ["Semua Status", "Diterima", "Pending", "Ditolak"];
 
 export default function AdminAccessRequestPage() {
   const sessionUser = getSessionUser();
   const showToast = useToast();
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua Status");
   const [currentPage, setCurrentPage] = useState(1);
-  const [users, setUsers] = useState([]);
+  const [requests, setRequests] = useState([]);
+
   const itemsPerPage = 10;
 
   if (sessionUser?.role !== "Admin") {
@@ -24,33 +27,34 @@ export default function AdminAccessRequestPage() {
   }
 
   useEffect(() => {
-    fetchUsers();
+    fetchRequests();
   }, []);
 
-  async function fetchUsers() {
+  async function fetchRequests() {
     try {
       const { data, error } = await supabase
         .from("borrow")
         .select(`
-        *,
-        profiles:user_id (
-          id,
-          username,
-          foto_profil
-        ),
-        books:book_id (
-          id,
-          judul,
-          penulis,
-          cover_buku
-        )
-      `)
+          *,
+          profiles:user_id (
+            id,
+            username,
+            foto_profil,
+            nis,
+            nip
+          ),
+          books:book_id (
+            id,
+            title,
+            author,
+            cover_url
+          )
+        `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      setUsers(data || []);
-
+      setRequests(data || []);
     } catch (err) {
       console.error(err);
       showToast?.("error", "Gagal memuat data pengajuan");
@@ -60,51 +64,60 @@ export default function AdminAccessRequestPage() {
   }
 
   const filteredRequests = useMemo(() => {
-    let result = [...users];
+    let result = [...requests];
 
     if (query.trim()) {
       const lowerQuery = query.toLowerCase();
 
-      result = result.filter(
-        (item) =>
-          item.profiles?.username
-            ?.toLowerCase()
-            .includes(lowerQuery) ||
+      result = result.filter((item) => {
+        const username = item.profiles?.username || "";
+        const title = item.books?.title || "";
+        const author = item.books?.author || "";
 
-          item.books?.judul
-            ?.toLowerCase()
-            .includes(lowerQuery) ||
-
-          item.books?.penulis
-            ?.toLowerCase()
-            .includes(lowerQuery)
-      );
+        return (
+          username.toLowerCase().includes(lowerQuery) ||
+          title.toLowerCase().includes(lowerQuery) ||
+          author.toLowerCase().includes(lowerQuery)
+        );
+      });
     }
 
     if (statusFilter !== "Semua Status") {
-      result = result.filter(
-        (item) => item.status === statusFilter
-      );
+      result = result.filter((item) => item.status === statusFilter);
     }
 
     return result;
-  }, [users, query, statusFilter]);
+  }, [requests, query, statusFilter]);
 
-  async function handleApprove(id) {
+  function getReturnDateFromBorrowDate(borrowDate) {
+    const baseDate = borrowDate ? new Date(borrowDate) : new Date();
+
+    baseDate.setDate(baseDate.getDate() + 3);
+
+    return baseDate.toISOString();
+  }
+
+  async function handleApprove(item) {
     try {
+      const borrowDate = item.borrow_date || new Date().toISOString();
+      const returnDate = getReturnDateFromBorrowDate(borrowDate);
+
       const { error } = await supabase
         .from("borrow")
         .update({
-          status: "Diterima"
+          status: "Diterima",
+          borrow_date: borrowDate,
+          return_date: returnDate,
         })
-        .eq("id", id);
+        .eq("id", item.id);
 
       if (error) throw error;
 
-      fetchUsers();
-
+      showToast?.("success", "Permintaan akses diterima");
+      fetchRequests();
     } catch (err) {
       console.error(err);
+      showToast?.("error", "Gagal menerima permintaan akses");
     }
   }
 
@@ -113,20 +126,25 @@ export default function AdminAccessRequestPage() {
       const { error } = await supabase
         .from("borrow")
         .update({
-          status: "Ditolak"
+          status: "Ditolak",
+          return_date: null,
         })
         .eq("id", id);
 
       if (error) throw error;
 
-      fetchUsers();
-
+      showToast?.("success", "Permintaan akses ditolak");
+      fetchRequests();
     } catch (err) {
       console.error(err);
+      showToast?.("error", "Gagal menolak permintaan akses");
     }
   }
 
   async function handleDelete(id) {
+    const confirmed = window.confirm("Hapus data pengajuan ini?");
+    if (!confirmed) return;
+
     try {
       const { error } = await supabase
         .from("borrow")
@@ -135,13 +153,24 @@ export default function AdminAccessRequestPage() {
 
       if (error) throw error;
 
-      setUsers((prev) =>
-        prev.filter((item) => item.id !== id)
-      );
-
+      setRequests((prev) => prev.filter((item) => item.id !== id));
+      showToast?.("success", "Data pengajuan berhasil dihapus");
     } catch (err) {
       console.error(err);
+      showToast?.("error", "Gagal menghapus data pengajuan");
     }
+  }
+
+  function getStatusClassName(status) {
+    if (status === "Diterima") return "is-approved";
+    if (status === "Ditolak") return "is-rejected";
+    return "is-pending";
+  }
+
+  function getStatusText(status) {
+    if (status === "Diterima") return "Diterima";
+    if (status === "Ditolak") return "Ditolak";
+    return "Pending";
   }
 
   const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
@@ -151,20 +180,15 @@ export default function AdminAccessRequestPage() {
 
   const currentReq = filteredRequests.slice(startIndex, endIndex);
 
-  const getStatusClassName = (status) => {
-    if (status === "Diterima") return "is-approved";
-    if (status === "Ditolak") return "is-rejected";
-    return "is-pending";
-  };
-
   return (
     <div className="admin-access-page">
-
       <div className="admin-access-main">
         <Header
           showSearch={false}
           showMenu={true}
-          onMenuClick={() => setMenuOpen(true)} />
+          onMenuClick={() => setMenuOpen(true)}
+        />
+
         <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
         <main className="admin-access-content">
@@ -178,7 +202,7 @@ export default function AdminAccessRequestPage() {
               <span className="admin-access-search__icon">⌕</span>
               <input
                 type="text"
-                placeholder="Cari pengguna yang kamu cari"
+                placeholder="Cari pengguna atau buku"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
@@ -191,7 +215,9 @@ export default function AdminAccessRequestPage() {
               >
                 {statusOptions.map((option) => (
                   <option key={option} value={option}>
-                    {option}
+                    {option === "Semua Status"
+                      ? "Semua Status"
+                      : getStatusText(option)}
                   </option>
                 ))}
               </select>
@@ -207,7 +233,8 @@ export default function AdminAccessRequestPage() {
                     <th>Foto</th>
                     <th>Nama</th>
                     <th>Judul Buku</th>
-                    <th>Tanggal</th>
+                    <th>Tanggal Pinjam</th>
+                    <th>Tanggal Kembali</th>
                     <th>Status</th>
                     <th>Aksi</th>
                   </tr>
@@ -218,65 +245,112 @@ export default function AdminAccessRequestPage() {
                     currentReq.map((item, index) => (
                       <tr key={item.id}>
                         <td>
-                          <span className="admin-access-order">{startIndex + index + 1}.</span>
+                          <span className="admin-access-order">
+                            {startIndex + index + 1}.
+                          </span>
                         </td>
+
                         <td>
                           <img
                             className="admin-access-avatar"
-                            src={item.profiles?.foto_profil || "/default-avatar.jpg"}
-                            alt={item.profiles?.username}
+                            src={
+                              item.profiles?.foto_profil ||
+                              defaultAvatar
+                            }
+                            alt={item.profiles?.username || "User"}
                           />
                         </td>
+
                         <td>
-                          <strong className="admin-access-name">{item.profiles?.username}</strong>
+                          <strong className="admin-access-name">
+                            {item.profiles?.username || "User tidak ditemukan"}
+                          </strong>
                         </td>
+
                         <td>
                           <div className="admin-access-book">
                             <img
                               className="admin-access-book__cover"
-                              src={item.books?.cover_buku || "/default-book.png"}
-                              alt={item.books?.judul}
+                              src={
+                                item.books?.cover_url ||
+                                "/default-book.png"
+                              }
+                              alt={item.books?.title || "Buku"}
                             />
+
                             <div className="admin-access-book__meta">
-                              <strong>{item.books?.judul}</strong>
-                              <span>{item.books?.penulis}</span>
+                              <strong>
+                                {item.books?.title || "Buku tidak ditemukan"}
+                              </strong>
+                              <span>{item.books?.author || "-"}</span>
                             </div>
                           </div>
                         </td>
+
                         <td>
-                          {new Date(item.created_at)
-                            .toLocaleDateString("id-ID")}
+                          {item.borrow_date
+                            ? new Date(item.borrow_date).toLocaleDateString(
+                                "id-ID"
+                              )
+                            : "-"}
                         </td>
+
+                        <td>
+                          {item.return_date
+                            ? new Date(item.return_date).toLocaleDateString(
+                                "id-ID"
+                              )
+                            : "-"}
+                        </td>
+
                         <td>
                           <span
                             className={`admin-access-status ${getStatusClassName(
                               item.status
                             )}`}
                           >
-                            {item.status}
+                            {getStatusText(item.status)}
                           </span>
                         </td>
+
                         <td>
                           <div className="admin-access-actions">
                             {item.status === "Pending" && (
                               <>
-                                <button type="button" className="is-approve">
+                                <button
+                                  type="button"
+                                  className="is-approve"
+                                  onClick={() => handleApprove(item)}
+                                >
                                   Setujui
                                 </button>
-                                <button type="button" className="is-reject">
+
+                                <button
+                                  type="button"
+                                  className="is-reject"
+                                  onClick={() => handleReject(item.id)}
+                                >
                                   Tolak
                                 </button>
                               </>
                             )}
 
                             {item.status === "Diterima" && (
-                              <button type="button" className="is-reject">
+                              <button
+                                type="button"
+                                className="is-reject"
+                                onClick={() => handleReject(item.id)}
+                              >
                                 Tolak
                               </button>
                             )}
 
                             {item.status === "Ditolak" && (
-                              <button type="button" className="is-delete">
+                              <button
+                                type="button"
+                                className="is-delete"
+                                onClick={() => handleDelete(item.id)}
+                              >
                                 Hapus
                               </button>
                             )}
@@ -286,7 +360,7 @@ export default function AdminAccessRequestPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="7">
+                      <td colSpan="8">
                         <div className="admin-access-empty">
                           Data pengajuan belum ditemukan.
                         </div>
@@ -309,7 +383,9 @@ export default function AdminAccessRequestPage() {
               <div className="admin-access-pagination">
                 <button
                   type="button"
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
                   disabled={currentPage === 1}
                 >
                   ‹
@@ -329,11 +405,11 @@ export default function AdminAccessRequestPage() {
                 <button
                   type="button"
                   onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    setCurrentPage((prev) =>
+                      Math.min(prev + 1, totalPages)
+                    )
                   }
-                  disabled={
-                    currentPage >= totalPages || totalPages === 0
-                  }
+                  disabled={currentPage >= totalPages || totalPages === 0}
                 >
                   ›
                 </button>

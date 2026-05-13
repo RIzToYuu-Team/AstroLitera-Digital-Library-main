@@ -41,7 +41,7 @@ export default function Aktivitas() {
   const showToast = useToast();
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [tab, setTab] = useState("semua"); // semua | menunggu | disetujui | ditolak
+  const [tab, setTab] = useState("semua");
   const [searchText, setSearchText] = useState("");
   const [requests, setRequests] = useState(() => readRequests());
 

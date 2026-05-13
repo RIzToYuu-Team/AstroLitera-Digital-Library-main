@@ -303,6 +303,7 @@
 @media (max-width: 900px) {
   .detail-container {
     padding: 72px 18px 0;
+    background: #f5f7fb;
   }
 
   .back-btn {
@@ -310,25 +311,38 @@
     left: 18px;
   }
 
-  .detail-top {
+  .detail-main {
     grid-template-columns: 1fr;
     justify-items: center;
     gap: 18px;
     margin: 0 auto 24px;
+    max-width: 100%;
   }
 
   .detail-cover {
+    width: 100%;
     max-width: 260px;
+    height: auto;
+    aspect-ratio: 3 / 4;
+  }
+
+  .detail-right {
+    width: 100%;
   }
 
   .detail-info {
     width: 100%;
     padding-right: 0;
     text-align: center;
+    min-height: auto;
   }
 
   .detail-info h2 {
     font-size: 28px;
+  }
+
+  .detail-author {
+    font-size: 14px;
   }
 
   .bookmark-btn {
@@ -343,16 +357,25 @@
     justify-content: center;
   }
 
+  .status {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .tabs {
+    width: 100%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0;
     border-radius: 18px 18px 0 0;
     overflow: hidden;
+    margin-top: 24px;
   }
 
   .tab-btn,
   .tab-btn.active {
+    min-width: 0;
+    height: auto;
     justify-content: center;
     border-radius: 0;
     border: none;
@@ -366,8 +389,11 @@
   }
 
   .content-box {
+    width: 100%;
+    margin-left: 0;
     border-radius: 0 0 18px 18px;
     min-height: 420px;
+    box-sizing: border-box;
   }
 
   .normal-mode,
@@ -389,6 +415,7 @@
     width: 100%;
     margin-top: 28px;
     padding: 14px 18px;
+    font-size: 16px;
   }
 
   .ulasan-wrapper {
@@ -399,12 +426,21 @@
 }
 
 @media (max-width: 480px) {
+  .detail-container {
+    padding: 68px 14px 0;
+  }
+
   .detail-cover {
     max-width: 230px;
   }
 
   .detail-info h2 {
     font-size: 25px;
+  }
+
+  .genre {
+    font-size: 12px;
+    padding: 6px 12px;
   }
 
   .tab-btn,

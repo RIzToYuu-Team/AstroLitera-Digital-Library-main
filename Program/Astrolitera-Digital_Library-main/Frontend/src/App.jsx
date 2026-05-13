@@ -21,6 +21,7 @@ import AdminUserDataPage from "./pages/Admin/AdminUserDataPage";
 import AdminBookDataPage_v2 from "./pages/Admin/AdminBookDataPage_v2";
 import AdminAccessRequestPage from "./pages/Admin/AdminAccessRequestPage";
 import AdminUserActivityReportPage from "./pages/Admin/AdminUserActivityReportPage";
+import BookReader from "./components/BookReader";
 
 function App() {
   const [toast, setToast] = useState(null);
@@ -92,6 +93,7 @@ function App() {
           <Route path="/kategori/:name" element={<KategoriPage />} />
           <Route path="/baca/:id" element={<HalamanBaca />} />
           <Route path="/view-all" element={<ViewAllPage />} />
+          <Route path="/bookReader" element={<BookReader />} />
 
           {/* fallback */}
           <Route path="*" element={<Home />} />
