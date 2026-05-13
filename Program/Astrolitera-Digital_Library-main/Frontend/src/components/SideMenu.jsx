@@ -3,6 +3,7 @@ import "./SideMenu.css";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../assets/default-avatar.jpg";
 import { getSessionUser, clearSessionUser } from "../utils/session";
+import { supabase } from "../utils/supabaseClient";
 import {
   ArrowLeft, Home, Bookmark, Clock, Settings, LayoutDashboard,
   Users, BookOpen, FileClock, ClipboardList,
@@ -10,15 +11,48 @@ import {
 
 function SideMenu({ open, onClose }) {
   const navigate = useNavigate();
-
-  const [sessionUser, setSessionUser] = useState(getSessionUser());
+  const [sessionUser, setSessionUser] = useState(null);
 
   useEffect(() => {
-    const sync = () => setSessionUser(getSessionUser());
-    window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
-  }, []);
+    const sync = () => {
+      setSessionUser(getSessionUser());
+    };
 
+    window.addEventListener("storage", sync);
+    window.addEventListener("session-changed", sync);
+
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("session-changed", sync);
+    };
+  }, []);
+  
+  useEffect(() => {
+    async function loadFreshUser() {
+      const localUser = getSessionUser();
+
+      if (!localUser?.id) {
+        setSessionUser(null);
+        return;
+      }
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", localUser.id)
+        .single();
+
+      if (!data) {
+        clearSessionUser();
+        setSessionUser(null);
+        return;
+      }
+
+      setSessionUser(data);
+    }
+
+    loadFreshUser();
+  }, []);
   const isLoggedIn = Boolean(sessionUser?.id);
 
   const isAdmin = sessionUser?.role === "Admin";
@@ -31,7 +65,7 @@ function SideMenu({ open, onClose }) {
     ? sessionUser?.nis || sessionUser?.nip || "ID tidak tersedia"
     : "Akses terbatas";
 
-  const userPhoto = sessionUser?.foto_profil || sessionUser?.kartu || "";
+  const userPhoto = sessionUser?.foto_profil || "";
 
   const profileImgSrc =
     userPhoto && userPhoto.trim() !== ""

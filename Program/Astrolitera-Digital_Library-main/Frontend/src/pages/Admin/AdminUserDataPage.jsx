@@ -4,7 +4,7 @@ import { useToast } from "../../components/Toast";
 import Header from "../../components/Header";
 import SideMenu from "../../components/SideMenu";
 import { Navigate } from "react-router-dom";
-import { getSessionUser } from "../../utils/session";
+import { getSessionUser, clearSessionUser } from "../../utils/session";
 import { supabase } from "../../utils/supabaseClient";
 import defaultAvatar from "../../assets/default-avatar.jpg";
 
@@ -165,6 +165,12 @@ export default function AdminUserDataPage() {
         .from("profiles")
         .delete()
         .eq("id", user.id);
+
+      const currentSession = getSessionUser();
+
+      if (currentSession?.id === user.id) {
+        clearSessionUser();
+      }
 
       if (error) throw error;
       setUsers((prev) =>
