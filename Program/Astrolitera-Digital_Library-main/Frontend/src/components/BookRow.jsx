@@ -3,13 +3,12 @@ import BookCard from "./BookCard";
 import "./BookRow.css";
 import { useNavigate } from "react-router-dom";
 
-function BookRow({ title, books }) {
+function BookRow({ title, books = [] }) {
   const rowRef = useRef(null);
   const navigate = useNavigate();
 
-  const [showMore, setShowMore] = useState(false);
-  const [rowHasScroll, setRowHasScroll] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [rowHasScroll, setRowHasScroll] = useState(false);
 
   const isDown = useRef(false);
   const startX = useRef(0);
@@ -17,66 +16,88 @@ function BookRow({ title, books }) {
   const moved = useRef(0);
 
   useEffect(() => {
-    const el = rowRef.current;
-    if (!el) return;
-    setRowHasScroll(el.scrollWidth > el.clientWidth);
-    setShowMore(false);
+    const checkScroll = () => {
+      const el = rowRef.current;
+      if (!el) return;
+      setRowHasScroll(el.scrollWidth > el.clientWidth);
+    };
+
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+
+    return () => window.removeEventListener("resize", checkScroll);
   }, [books]);
 
   const handleMouseDown = (e) => {
+    const el = rowRef.current;
+    if (!el) return;
+
     isDown.current = true;
     moved.current = 0;
     setDragging(false);
 
-    startX.current = e.pageX - rowRef.current.offsetLeft;
-    scrollLeft.current = rowRef.current.scrollLeft;
-  };
-
-  const handleMouseUp = () => {
-    isDown.current = false;
-    setTimeout(() => setDragging(false), 0);
+    startX.current = e.pageX - el.offsetLeft;
+    scrollLeft.current = el.scrollLeft;
   };
 
   const handleMouseMove = (e) => {
-    if (!isDown.current) return;
+    const el = rowRef.current;
+    if (!isDown.current || !el) return;
 
     e.preventDefault();
-    const x = e.pageX - rowRef.current.offsetLeft;
-    const walk = (x - startX.current) * 2;
+
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - startX.current) * 1.6;
 
     moved.current = Math.max(moved.current, Math.abs(walk));
-    if (moved.current > 6) setDragging(true);
 
-    rowRef.current.scrollLeft = scrollLeft.current - walk;
+    if (moved.current > 6) {
+      setDragging(true);
+    }
+
+    el.scrollLeft = scrollLeft.current - walk;
   };
 
-  const handleScroll = () => {
-    const el = rowRef.current;
-    if (!el) return;
+  const stopDragging = () => {
+    isDown.current = false;
 
-    const atRight =
-      Math.ceil(el.scrollLeft + el.clientWidth) >= el.scrollWidth - 2;
-
-    setShowMore(atRight);
+    setTimeout(() => {
+      setDragging(false);
+    }, 0);
   };
 
   const goToViewAll = () => {
-    navigate("/view-all", { state: { title, books } });
+    navigate("/view-all", {
+      state: {
+        title,
+        books,
+      },
+    });
   };
 
   return (
-    <div className="book-row-container">
+    <section className="book-row-container">
       <div className="row-header">
         <h2>{title}</h2>
+
+        {books.length > 0 && (
+          <button
+            type="button"
+            className="lihat-semua"
+            onClick={goToViewAll}
+          >
+            Lihat Semua →
+          </button>
+        )}
       </div>
 
       <div
-        className={`book-row ${dragging ? "dragging" : ""}`}
+        className={`book-row ${dragging ? "dragging" : ""} ${rowHasScroll ? "has-scroll" : ""
+          }`}
         ref={rowRef}
-        onScroll={handleScroll}
         onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseUp={stopDragging}
+        onMouseLeave={stopDragging}
         onMouseMove={handleMouseMove}
       >
         {books.map((book) => (
@@ -86,15 +107,8 @@ function BookRow({ title, books }) {
             disableClick={dragging}
           />
         ))}
-
-        <p
-          className={`lihat-semua-scroll ${rowHasScroll && showMore ? "visible" : ""}`}
-          onClick={goToViewAll}
-        >
-          Lihat Semua →
-        </p>
       </div>
-    </div>
+    </section>
   );
 }
 

@@ -154,7 +154,19 @@
   bottom: 8px;
 }
 
-/* TABLET */
+.book-list-synopsis {
+  margin: 4px 0 0;
+  color: #374151;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.85;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 @media (max-width: 1024px) {
   .book-card {
     width: 145px;
@@ -173,7 +185,6 @@
   }
 }
 
-/* MOBILE */
 @media (max-width: 768px) {
   .book-card {
     width: 145px;
@@ -230,7 +241,6 @@
   }
 }
 
-/* SMALL PHONE */
 @media (max-width: 428px) {
   .book-card {
     width: 136px;

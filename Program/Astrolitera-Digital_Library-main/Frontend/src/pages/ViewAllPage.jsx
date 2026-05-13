@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BookCard from "../components/BookCard";
 import { ArrowLeft, LayoutGrid, StretchHorizontal } from "lucide-react";
-import "./KategoriPage.css"; // boleh reuse CSS grid/list kamu biar cepat
+import "./KategoriPage.css";
 
 export default function ViewAllPage() {
   const navigate = useNavigate();

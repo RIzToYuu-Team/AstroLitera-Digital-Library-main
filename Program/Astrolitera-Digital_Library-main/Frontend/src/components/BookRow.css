@@ -1,12 +1,39 @@
 .book-row-container {
+  width: 100%;
   margin-top: 30px;
   padding: 0 25px;
 }
 
-.row-title h2 {
-  margin: 0 0 5px;
+.row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+
+.row-header h2 {
+  margin: 0;
   font-size: 22px;
+  font-weight: 800;
+  color: #000;
+}
+
+.lihat-semua {
+  border: none;
+  background: transparent;
+  color: #444;
+  font-size: 14px;
   font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+}
+
+.lihat-semua:hover {
+  opacity: 1;
+  text-decoration: underline;
 }
 
 .book-row {
@@ -14,7 +41,8 @@
   align-items: flex-start;
   gap: 15px;
   overflow-x: auto;
-  padding: 15px 40px 15px 0;
+  overflow-y: hidden;
+  padding: 15px 6px 16px 0;
   scroll-behavior: smooth;
   cursor: grab;
 
@@ -32,41 +60,19 @@
 }
 
 .book-row .book-card {
+  flex: 0 0 auto;
   scroll-snap-align: start;
 }
 
+.book-row img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: none;
+}
+
+/* This old scroll button is no longer needed */
 .lihat-semua-scroll {
-  flex-shrink: 0;
-  align-self: center;
-  margin-left: 30px;
-  margin-right: 20px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #444;
-  opacity: 0.7;
-  cursor: pointer;
-  pointer-events: auto;
-  white-space: nowrap;
-  transition: opacity 0.2s ease, text-decoration 0.2s ease;
-}
-
-.lihat-semua,
-.lihat-semua-scroll:hover {
-  opacity: 1;
-  text-decoration: underline;
-}
-
-.lihat-semua {
-  font-size: 14px;
-  color: #444;
-  opacity: 0.7;
-  cursor: pointer;
-  transition: opacity 0.2s ease, text-decoration 0.2s ease;
-}
-
-.lihat-semua:hover {
-  opacity: 1;
-  text-decoration: underline;
+  display: none;
 }
 
 @media (max-width: 768px) {
@@ -75,21 +81,22 @@
     padding: 0 20px;
   }
 
-  .row-title h2 {
+  .row-header {
     margin-bottom: 8px;
-    font-size: 30px;
+  }
+
+  .row-header h2 {
+    font-size: 28px;
+  }
+
+  .lihat-semua {
+    font-size: 13px;
   }
 
   .book-row {
     gap: 18px;
-    padding: 12px 8px 14px 0;
+    padding: 12px 4px 14px 0;
     scroll-snap-type: x mandatory;
-  }
-
-  .lihat-semua-scroll {
-    margin-left: 14px;
-    margin-right: 8px;
-    font-size: 13px;
   }
 }
 
@@ -99,8 +106,8 @@
     padding: 0 16px;
   }
 
-  .row-title h2 {
-    font-size: 28px;
+  .row-header h2 {
+    font-size: 24px;
   }
 
   .book-row {
