@@ -9,21 +9,44 @@ import {
   Search,
 } from "lucide-react";
 import BookCard from "../components/BookCard";
-import { books, toCardBook } from "../data/Books";
 import FilterPanel from "../components/FilterPanel.jsx";
+import { supabase } from "../utils/supabaseClient";
+import { useToast } from "../components/Toast";
 
 function useQueryParams() {
   const { search } = useLocation();
   return useMemo(() => new URLSearchParams(search), [search]);
 }
 
+function toCardBook(book) {
+  return {
+    id: book.id,
+    cover: book.cover_url,
+    cover_url: book.cover_url,
+    title: book.title,
+    author: book.author,
+    genre: book.genre,
+    category: book.category,
+    synopsis: book.synopsis,
+    stock: book.stock,
+    pages: book.pages,
+    isbn: book.isbn,
+    publisher: book.publisher,
+    created_at: book.created_at,
+  };
+}
+
 export default function SearchResult() {
   const navigate = useNavigate();
+  const showToast = useToast();
   const query = useQueryParams();
 
   const urlQ = query.get("q") || "";
   const urlView = query.get("view") || "grid";
   const urlSort = query.get("sort") || "relevance";
+
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [searchInput, setSearchInput] = useState(urlQ);
   const [viewMode, setViewMode] = useState(urlView === "list" ? "list" : "grid");
@@ -38,73 +61,112 @@ export default function SearchResult() {
     rating: "",
   });
 
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
   useEffect(() => setSearchInput(urlQ), [urlQ]);
   useEffect(() => setViewMode(urlView === "list" ? "list" : "grid"), [urlView]);
   useEffect(() => setSortMode(urlSort), [urlSort]);
 
+  async function fetchBooks() {
+    try {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from("books")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      setBooks(data || []);
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal memuat data buku");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const normalizedQuery = (searchInput || "").trim().toLowerCase();
 
   const results = useMemo(() => {
-    const base = books
-      .map(toCardBook)
-      .filter((b) => {
-        if (!normalizedQuery) return true;
+    let list = books.map(toCardBook);
 
-        const title = (b.title || "").toLowerCase();
-        const author = (b.author || "").toLowerCase();
+    if (normalizedQuery) {
+      list = list.filter((book) => {
+        const title = String(book.title || "").toLowerCase();
+        const author = String(book.author || "").toLowerCase();
+        const genre = String(book.genre || "").toLowerCase();
+        const category = String(book.category || "").toLowerCase();
+        const publisher = String(book.publisher || "").toLowerCase();
+        const isbn = String(book.isbn || "").toLowerCase();
 
-        return title.includes(normalizedQuery) || author.includes(normalizedQuery);
+        return (
+          title.includes(normalizedQuery) ||
+          author.includes(normalizedQuery) ||
+          genre.includes(normalizedQuery) ||
+          category.includes(normalizedQuery) ||
+          publisher.includes(normalizedQuery) ||
+          isbn.includes(normalizedQuery)
+        );
       });
+    }
 
-    const afterFilter = base.filter((b) => {
-      const category = String(b.category || "").toLowerCase();
-      const title = String(b.title || "").toLowerCase();
-      const author = String(b.author || "").toLowerCase();
-      const year = String(b.year || "");
-      const rating = Number(b.rating || 0);
+    list = list.filter((book) => {
+      const category = String(book.category || "").toLowerCase();
+      const genre = String(book.genre || "").toLowerCase();
+      const author = String(book.author || "").toLowerCase();
+      const year = book.created_at
+        ? String(new Date(book.created_at).getFullYear())
+        : "";
 
       const matchJenis =
         !filters.jenis?.length ||
         filters.jenis.some((jenis) => {
-          if (jenis === "Pelajaran") return category === "pendidikan";
-          if (jenis === "Novel") return category === "novel";
-          if (jenis === "Kamus") return category === "kamus" || title.includes("kamus");
-          return true;
+          const value = String(jenis || "").toLowerCase();
+
+          if (value === "pelajaran") return category === "pelajaran";
+          if (value === "novel") return category === "novel";
+
+          return category === value;
         });
 
       const matchGenre =
-        !filters.genre || category === filters.genre.toLowerCase();
+        !filters.genre ||
+        genre.includes(String(filters.genre).toLowerCase());
 
       const matchPenulis =
-        !filters.penulis || author.includes(filters.penulis.toLowerCase());
+        !filters.penulis ||
+        author.includes(String(filters.penulis).toLowerCase());
 
       const matchTahun =
         !filters.tahun || year === String(filters.tahun);
 
-      const matchRating =
-        !filters.rating || rating >= Number(filters.rating);
-
-      return matchJenis && matchGenre && matchPenulis && matchTahun && matchRating;
+      return matchJenis && matchGenre && matchPenulis && matchTahun;
     });
 
-    if (sortMode === "rating_desc") {
-      return [...afterFilter].sort((x, y) => Number(y.rating || 0) - Number(x.rating || 0));
-    }
-
-    if (sortMode === "az") {
-      return [...afterFilter].sort((x, y) =>
-        String(x.title || "").localeCompare(String(y.title || ""))
+    if (sortMode === "latest") {
+      list = [...list].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+    } else if (sortMode === "oldest") {
+      list = [...list].sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+      );
+    } else if (sortMode === "az") {
+      list = [...list].sort((a, b) =>
+        String(a.title || "").localeCompare(String(b.title || ""))
+      );
+    } else if (sortMode === "za") {
+      list = [...list].sort((a, b) =>
+        String(b.title || "").localeCompare(String(a.title || ""))
       );
     }
 
-    if (sortMode === "za") {
-      return [...afterFilter].sort((x, y) =>
-        String(y.title || "").localeCompare(String(x.title || ""))
-      );
-    }
-
-    return afterFilter;
-  }, [normalizedQuery, sortMode, filters]);
+    return list;
+  }, [books, normalizedQuery, sortMode, filters]);
 
   const debounceRef = useRef(null);
 
@@ -115,12 +177,16 @@ export default function SearchResult() {
       const params = new URLSearchParams();
 
       const q = (searchInput || "").trim();
+
       if (q) params.set("q", q);
       if (viewMode && viewMode !== "grid") params.set("view", viewMode);
       if (sortMode && sortMode !== "relevance") params.set("sort", sortMode);
 
       const qs = params.toString();
-      navigate(qs ? `/search?${qs}` : "/search", { replace: true });
+
+      navigate(qs ? `/search?${qs}` : "/search", {
+        replace: true,
+      });
     }, 250);
 
     return () => {
@@ -136,7 +202,12 @@ export default function SearchResult() {
     <div className="search-page">
       <div className="search-topbar">
         <div className="search-topbar-row">
-          <button className="search-back" onClick={handleBack} aria-label="Kembali">
+          <button
+            className="search-back"
+            onClick={handleBack}
+            aria-label="Kembali"
+            type="button"
+          >
             <ArrowLeft size={26} />
           </button>
 
@@ -175,14 +246,19 @@ export default function SearchResult() {
         </div>
 
         <div className="search-sort">
-          <select value={sortMode} onChange={(e) => setSortMode(e.target.value)}>
+          <select value={sortMode} onChange={(e) => setSortMode(e.target.value)}>Urutkan
             <option value="relevance">Urutkan</option>
-            <option value="rating_desc">Rating tertinggi</option>
+            <option value="latest">Terbaru</option>
+            <option value="oldest">Terlama</option>
             <option value="az">A - Z</option>
             <option value="za">Z - A</option>
           </select>
 
-          <button className="search-filter-btn" onClick={() => setFilterOpen((v) => !v)}>
+          <button
+            className="search-filter-btn"
+            type="button"
+            onClick={() => setFilterOpen((value) => !value)}
+          >
             Filter
           </button>
         </div>
@@ -196,14 +272,26 @@ export default function SearchResult() {
         )}
 
         <div className="search-content">
-          {results.length === 0 ? (
+          {loading ? (
+            <div className="search-empty">Memuat data buku...</div>
+          ) : results.length === 0 ? (
             <div className="search-empty">
               Tidak ada hasil untuk <b>{(searchInput || "").trim()}</b>
             </div>
           ) : (
             <div className={viewMode === "grid" ? "kategori-grid" : "kategori-list"}>
               {results.map((book) => (
-                <BookCard key={book.id} {...book} view={viewMode} />
+                <BookCard
+                  key={book.id}
+                  id={book.id}
+                  cover={book.cover_url}
+                  title={book.title}
+                  author={book.author}
+                  rating={0}
+                  view={viewMode}
+                  genre={book.genre}
+                  synopsis={book.synopsis}
+                />
               ))}
             </div>
           )}
