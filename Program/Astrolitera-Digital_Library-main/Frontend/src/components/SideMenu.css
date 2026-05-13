@@ -160,3 +160,26 @@
   opacity: 0.7;
   text-transform: uppercase;
 }
+
+@media (max-width: 480px) {
+  .side-drawer {
+    width: 70%;
+    left: -100%;
+  }
+
+  .side-drawer.open {
+    left: 0;
+  }
+
+  .side-avatar{
+    width: 65px;
+  }
+
+  .side-name{
+    font-size: 14px;
+  }
+
+  .side-sub{
+    font-size: 12px;
+  }
+}
