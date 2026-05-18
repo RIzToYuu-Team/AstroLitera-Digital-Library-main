@@ -58,13 +58,22 @@
   color: #0f172a;
 }
 
-.settings-status{
+.settings-status-verified {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #118a2b;
   font-weight: 700;
+  color: #16a34a;
+}
+
+.settings-status-unverified {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #dc2626;
 }
 
 .settings-menu{

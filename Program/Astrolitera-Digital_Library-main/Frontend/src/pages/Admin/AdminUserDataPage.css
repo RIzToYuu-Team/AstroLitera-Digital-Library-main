@@ -256,8 +256,8 @@
   font-weight: 600;
 }
 
-.admin-user-actions .is-edit {
-  color: #c19700;
+.admin-user-actions .is-approve {
+  color: #2d7c1a;
 }
 
 .admin-user-actions .is-delete {
@@ -265,7 +265,193 @@
 }
 
 .admin-user-actions .is-view {
-  color: #495261;
+  background: #eef4ff;
+  color: #2c4b6f;
+}
+
+/* VIEW USER MODAL */
+.admin-user-view-overlay {
+  --header-height: 100px;
+
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.admin-user-view-card {
+  position: relative;
+  width: min(1100px, 100%);
+  max-height: calc(100vh - var(--header-height) - 48px);
+
+  background: #f5f6fa;
+  border-radius: 22px;
+  padding: 24px;
+
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  overflow-y: auto;
+}
+
+.admin-user-view-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+
+  border: none;
+  background: transparent;
+  color: #1f2937;
+
+  font-size: 32px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* LEFT PROFILE PANEL */
+.admin-user-view-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 8px 22px rgba(16, 24, 40, 0.08);
+}
+
+.admin-user-view-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.admin-user-view-avatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e5e7eb;
+  margin-bottom: 16px;
+}
+
+.admin-user-view-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-user-view-profile h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.admin-user-view-profile p {
+  margin: 0;
+  font-size: 14px;
+  color: #667085;
+}
+
+/* RIGHT DETAIL PANEL */
+.admin-user-view-content {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 8px 22px rgba(16, 24, 40, 0.08);
+
+  max-height: calc(100vh - var(--header-height) - 96px);
+  overflow-y: auto;
+}
+
+.admin-user-view-content h1 {
+  margin: 0 0 24px;
+  font-size: 30px;
+  font-weight: 800;
+  color: #111827;
+  border-bottom: 1px solid #d0d5dd;
+  padding-bottom: 14px;
+}
+
+.admin-user-view-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.admin-user-view-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-user-view-field label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.admin-user-view-value,
+.admin-user-view-kartu-link {
+  min-height: 44px;
+  border: 1px solid #b8c0cc;
+  border-radius: 8px;
+  background: #f9fafb;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #374151;
+
+  display: flex;
+  align-items: center;
+}
+
+.admin-user-view-kartu {
+  grid-column: span 2;
+}
+
+.admin-user-view-kartu-preview {
+  border: 1px solid #b8c0cc;
+  border-radius: 12px;
+  background: #f9fafb;
+  padding: 14px;
+}
+
+.admin-user-view-kartu-preview img {
+  width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  display: block;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.admin-user-view-kartu-open {
+  display: inline-block;
+  margin-top: 12px;
+  color: #2c4b6f;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin-user-view-kartu-open:hover {
+  text-decoration: underline;
 }
 
 .admin-user-empty {
@@ -328,5 +514,19 @@
 
   .admin-user-filter {
     min-width: 100%;
+  }
+
+  .admin-user-view-card {
+    grid-template-columns: 1fr;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .admin-user-view-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-user-view-kartu {
+    grid-column: span 1;
   }
 }

@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./DetailBuku.css";
-import {
-  ArrowLeft,
-  Star,
-  Bookmark,
-  BookOpen,
-  Info,
-  MessageSquare,
-  Trash2,
-} from "lucide-react";
+import { ArrowLeft, Star, Bookmark, BookOpen, Info, MessageSquare, Trash2, } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "../components/Toast";
 import RequestAccessPopup from "../components/RequestAccessPopup";
@@ -561,4 +553,4 @@ function DetailBuku() {
     </div>
   );
 }
-  export default DetailBuku;
+export default DetailBuku;

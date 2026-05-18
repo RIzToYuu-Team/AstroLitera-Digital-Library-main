@@ -21,6 +21,8 @@ export default function AdminUserDataPage() {
   const [statusFilter, setStatusFilter] = useState("Semua Status");
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
   const itemsPerPage = 10;
 
   if (sessionUser?.role !== "Admin") {
@@ -97,6 +99,16 @@ export default function AdminUserDataPage() {
   const endIndex = startIndex + itemsPerPage;
 
   const currentUser = filteredUsers.slice(startIndex, endIndex);
+
+  function handleViewUser(user) {
+    setSelectedUser(user);
+    setShowViewModal(true);
+  }
+
+  function closeViewModal() {
+    setSelectedUser(null);
+    setShowViewModal(false);
+  }
 
   async function handleApproveUser(id) {
     try {
@@ -198,6 +210,20 @@ export default function AdminUserDataPage() {
     if (status === "Ditolak") return "is-rejected";
     return "is-pending";
   };
+
+  function getKartuUrl(value) {
+    if (!value) return "";
+
+    if (value.startsWith("http://") || value.startsWith("https://")) {
+      return value;
+    }
+
+    const { data } = supabase.storage
+      .from("kartu_perpustakaan")
+      .getPublicUrl(value);
+
+    return data.publicUrl;
+  }
 
   return (
     <div className="admin-user-page">
@@ -306,21 +332,38 @@ export default function AdminUserDataPage() {
                             <>
                               <button
                                 type="button"
-                                className="is-edit"
+                                className="is-view"
+                                onClick={() => handleViewUser(item)}
+                              >
+                                Lihat
+                              </button>
+
+                              <button
+                                type="button"
+                                className="is-approve"
                                 onClick={() => handleApproveUser(item.id)}
                               >
                                 Setujui
                               </button>
+
                               <button
                                 type="button"
                                 className="is-delete"
                                 onClick={() => handleDeleteUser(item)}
                               >
-                                Hapus
+                                Tolak
                               </button>
                             </>
                           ) : (
                             <>
+                              <button
+                                type="button"
+                                className="is-view"
+                                onClick={() => handleViewUser(item)}
+                              >
+                                Lihat
+                              </button>
+
                               <button
                                 type="button"
                                 className="is-delete"
@@ -345,6 +388,78 @@ export default function AdminUserDataPage() {
                 )}
               </tbody>
             </table>
+            {showViewModal && selectedUser && (
+              <div className="admin-user-view-overlay">
+                <div className="admin-user-view-card">
+                  <button
+                    type="button"
+                    className="admin-user-view-close"
+                    onClick={closeViewModal}
+                  >
+                    ×
+                  </button>
+
+                  <aside className="admin-user-view-sidebar">
+                    <div className="admin-user-view-profile">
+                      <div className="admin-user-view-avatar">
+                        <img
+                          src={selectedUser.foto_profil || defaultAvatar}
+                          alt={selectedUser.username || "User"}
+                        />
+                      </div>
+
+                      <div>
+                        <h2>{selectedUser.username || "Anonim"}</h2>
+                        <p>{selectedUser.status || "Status tidak tersedia"}</p>
+                      </div>
+                    </div>
+                  </aside>
+
+                  <section className="admin-user-view-content">
+                    <h1>Detail Pengguna</h1>
+
+                    <div className="admin-user-view-grid">
+                      <ViewField
+                        label="NIS"
+                        value={selectedUser.nis || "-"}
+                      />
+
+                      <ViewField
+                        label="Nama"
+                        value={selectedUser.username || "-"}
+                      />
+
+                      <ViewField
+                        label="Kelas"
+                        value={selectedUser.kelas || "-"}
+                      />
+
+                      <ViewField
+                        label="Email"
+                        value={selectedUser.email || "-"}
+                      />
+
+                      <div className="admin-user-view-field admin-user-view-kartu">
+                        <label>Kartu Perpustakaan</label>
+
+                        {selectedUser.kartu_perpustakaan ? (
+                          <div className="admin-user-view-kartu-preview">
+                            <img
+                              src={getKartuUrl(selectedUser.kartu_perpustakaan)}
+                              alt={`Kartu perpustakaan ${selectedUser.username || ""}`}
+                            />
+                          </div>
+                        ) : (
+                          <div className="admin-user-view-value">
+                            Tidak ada kartu perpustakaan
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              </div>
+            )}
           </div>
 
           <footer className="admin-user-footer">
@@ -390,5 +505,14 @@ export default function AdminUserDataPage() {
         </section>
       </main>
     </div >
+  );
+}
+
+function ViewField({ label, value }) {
+  return (
+    <div className="admin-user-view-field">
+      <label>{label}</label>
+      <div className="admin-user-view-value">{value}</div>
+    </div>
   );
 }

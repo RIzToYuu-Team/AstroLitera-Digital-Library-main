@@ -3,10 +3,11 @@ import "./Pengaturan.css";
 import Header from "../components/Header";
 import SideMenu from "../components/SideMenu";
 import defaultAvatar from "../assets/default-avatar.jpg";
-import { BadgeCheck, Camera } from "lucide-react";
+import { BadgeCheck, XCircle, Camera } from "lucide-react";
 import { useToast } from "../components/Toast";
 import { supabase } from "../utils/supabaseClient";
 import { getSessionUser, setSessionUser } from "../utils/session";
+import { Form } from "react-router-dom";
 
 export default function Pengaturan() {
   const showToast = useToast();
@@ -25,6 +26,7 @@ export default function Pengaturan() {
     tanggalLahir: "",
     jenisKelamin: "",
     foto_profil: "",
+    status: "",
   });
 
   const profileImgSrc =
@@ -55,6 +57,7 @@ export default function Pengaturan() {
         tanggalLahir: data.tanggal_lahir || "",
         jenisKelamin: data.jenis_kelamin || "",
         foto_profil: data.foto_profil || "",
+        status: data.status || "",
       });
 
       setOldPhotoUrl(data.foto_profil || "");
@@ -223,8 +226,7 @@ export default function Pengaturan() {
 
       <div className="settings-page">
         <div className="settings-container">
-
-          {/* LEFT */}
+          
           <aside className="settings-sidebar">
             <div className="settings-profile">
               <div className="settings-profile-img">
@@ -233,10 +235,17 @@ export default function Pengaturan() {
 
               <div className="settings-profile-info">
                 <div className="settings-name">{displayName}</div>
-                <div className="settings-status">
-                  <BadgeCheck size={16} />
-                  <span>Terverifikasi</span>
-                </div>
+                {form.status === "Diterima" ? (
+                  <div className="settings-status-verified">
+                    <BadgeCheck size={16} />
+                    <span>Terverifikasi</span>
+                  </div>
+                ) : (
+                  <div className="settings-status-unverified">
+                    <XCircle size={16} />
+                    <span>Belum Terverifikasi</span>
+                  </div>
+                )}
               </div>
             </div>
 
