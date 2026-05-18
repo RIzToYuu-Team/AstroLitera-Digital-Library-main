@@ -183,26 +183,3 @@
     font-size: 12px;
   }
 }
-
-@media (min-width: 1024px) {
-   .side-drawer {
-    width: 70%;
-    left: -100%;
-  }
-
-  .side-drawer.open {
-    left: 0;
-  }
-
-  .side-avatar{
-    width: 68px;
-  }
-
-  .side-name{
-    font-size: 14px;
-  }
-
-  .side-sub{
-    font-size: 12px;
-  }
-}
