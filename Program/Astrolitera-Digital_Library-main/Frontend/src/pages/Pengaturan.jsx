@@ -1,20 +1,25 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./Pengaturan.css";
 import Header from "../components/Header";
 import SideMenu from "../components/SideMenu";
+import ConfirmModal from "../components/ConfirmModal";
 import defaultAvatar from "../assets/default-avatar.jpg";
 import { BadgeCheck, XCircle, Camera } from "lucide-react";
 import { useToast } from "../components/Toast";
 import { supabase } from "../utils/supabaseClient";
 import { getSessionUser, setSessionUser } from "../utils/session";
-import { Form } from "react-router-dom";
 
 export default function Pengaturan() {
   const showToast = useToast();
   const fileInputRef = useRef(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
+
   const sessionUser = getSessionUser();
+  const isAdmin = sessionUser?.role === "Admin";
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const [selectedFile, setSelectedFile] = useState(null);
   const [oldPhotoUrl, setOldPhotoUrl] = useState("");
   const [previewUrl, setPreviewUrl] = useState("");
 
@@ -29,25 +34,45 @@ export default function Pengaturan() {
     status: "",
   });
 
+  const displayName =
+    form.namaLengkap && form.namaLengkap.trim() !== ""
+      ? form.namaLengkap
+      : "Anonim";
+
+  const identityLabel = isAdmin
+    ? "Nomor Induk Pegawai/NIP"
+    : "Nomor Induk Sekolah/NIS";
+
+  const identityValue = isAdmin ? form.nip : form.nis;
+
   const profileImgSrc =
     form.foto_profil && form.foto_profil.trim() !== ""
       ? form.foto_profil
       : defaultAvatar;
 
   useEffect(() => {
-    async function fetchProfile() {
-      if (!sessionUser?.id) return;
+    fetchProfile();
+  }, [sessionUser?.id]);
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  async function fetchProfile() {
+    if (!sessionUser?.id) return;
+
+    try {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", sessionUser.id)
         .single();
 
-      if (error || !data) {
-        showToast?.("error", "Gagal memuat data profil");
-        return;
-      }
+      if (error) throw error;
 
       setForm({
         namaLengkap: data.username || "",
@@ -61,24 +86,32 @@ export default function Pengaturan() {
       });
 
       setOldPhotoUrl(data.foto_profil || "");
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal memuat data profil");
     }
+  }
 
-    fetchProfile();
-  }, [sessionUser?.id]);
+  function updateField(key, value) {
+    setForm((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  }
 
-  const updateField = (key, value) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const openFilePicker = () => {
+  function openFilePicker() {
     fileInputRef.current?.click();
-  };
+  }
 
-  const onPickPhoto = (e) => {
+  function onPickPhoto(e) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) return;
+    if (!file.type.startsWith("image/")) {
+      showToast?.("error", "File harus berupa gambar");
+      e.target.value = "";
+      return;
+    }
 
     setSelectedFile(file);
 
@@ -86,82 +119,89 @@ export default function Pengaturan() {
       URL.revokeObjectURL(previewUrl);
     }
 
-    const newPreview = URL.createObjectURL(file);
-
-    setPreviewUrl(newPreview);
+    const newPreviewUrl = URL.createObjectURL(file);
+    setPreviewUrl(newPreviewUrl);
 
     setForm((prev) => ({
       ...prev,
-      foto_profil: newPreview,
+      foto_profil: newPreviewUrl,
     }));
 
     e.target.value = "";
-  };
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
-
-  function getFilePathFromUrl(url) {
-    if (!url) return null;
-    const marker = "/foto_profil/";
-    const index = url.indexOf(marker);
-    if (index === -1) return null;
-    return url.substring(index + marker.length);
   }
 
-  const handleSave = async () => {
+  function getFotoProfilPath(value) {
+    if (!value) return "";
+
+    if (!value.startsWith("http://") && !value.startsWith("https://")) {
+      return value;
+    }
+
+    try {
+      const url = new URL(value);
+      const marker = "/storage/v1/object/public/foto_profil/";
+      const index = url.pathname.indexOf(marker);
+
+      if (index === -1) return "";
+
+      return decodeURIComponent(url.pathname.slice(index + marker.length));
+    } catch {
+      return "";
+    }
+  }
+
+  async function uploadNewPhotoIfNeeded() {
+    if (!selectedFile) {
+      return form.foto_profil;
+    }
+
+    const fileExt = selectedFile.name.split(".").pop();
+    const fileName = `${sessionUser.id}-${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("foto_profil")
+      .upload(fileName, selectedFile, {
+        upsert: true,
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: publicUrlData } = supabase.storage
+      .from("foto_profil")
+      .getPublicUrl(fileName);
+
+    const oldFilePath = getFotoProfilPath(oldPhotoUrl);
+
+    if (oldFilePath) {
+      const { error: removeError } = await supabase.storage
+        .from("foto_profil")
+        .remove([oldFilePath]);
+
+      if (removeError) {
+        console.error(removeError);
+        showToast?.(
+          "warning",
+          "Gagal menghapus foto lama, tapi perubahan tetap disimpan"
+        );
+      }
+    }
+
+    return publicUrlData.publicUrl;
+  }
+
+  async function handleSave() {
     if (!sessionUser?.id) {
       showToast?.("error", "User tidak valid");
       return;
     }
 
     try {
-      let uploadedUrl = form.foto_profil;
-
-      const oldFilePath = getFilePathFromUrl(oldPhotoUrl);
-
-      if (selectedFile) {
-        const fileExt = selectedFile.name.split(".").pop();
-        const fileName = `${sessionUser.id}-${Date.now()}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("foto_profil")
-          .upload(fileName, selectedFile, {
-            upsert: true,
-          });
-
-        if (uploadError) throw uploadError;
-
-        const { data: publicUrlData } = supabase.storage
-          .from("foto_profil")
-          .getPublicUrl(fileName);
-
-        uploadedUrl = publicUrlData.publicUrl;
-
-        if (oldFilePath) {
-          const { data: removeData, error: removeError } =
-            await supabase.storage
-              .from("foto_profil")
-              .remove([oldFilePath]);
-          if (removeError) {
-            console.error(removeError);
-            showToast?.("warning", "Gagal menghapus foto lama, tapi perubahan tetap disimpan");
-          }
-        }
-      }
+      const uploadedUrl = await uploadNewPhotoIfNeeded();
 
       const { error } = await supabase
         .from("profiles")
         .update({
           username: form.namaLengkap,
-          email: form.email,
-          nis: isAdmin ? null : form.nis,
-          nip: isAdmin ? form.nip : null,
           tanggal_lahir: form.tanggalLahir,
           jenis_kelamin: form.jenisKelamin,
           foto_profil: uploadedUrl,
@@ -173,47 +213,29 @@ export default function Pengaturan() {
       const updatedSession = {
         ...sessionUser,
         username: form.namaLengkap,
-        nis: form.nis,
-        nip: form.nip,
         foto_profil: uploadedUrl,
+        status: form.status,
       };
 
       setSessionUser(updatedSession);
-
       window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new Event("session-changed"));
 
       setSelectedFile(null);
       setOldPhotoUrl(uploadedUrl);
 
-      showToast?.("success", "Perubahan disimpan");
+      setForm((prev) => ({
+        ...prev,
+        foto_profil: uploadedUrl,
+      }));
 
+      showToast?.("success", "Perubahan disimpan");
     } catch (err) {
       console.error(err);
-      showToast?.("error", "Gagal menyimpan perubahan");
+      showToast?.("error", err.message || "Gagal menyimpan perubahan");
     }
-  };
-  const displayName = form.namaLengkap && form.namaLengkap.trim() !== "" ? form.namaLengkap : "Anonim";
-  const isAdmin = sessionUser?.role === "Admin";
+  }
 
-  const identityLabel = isAdmin
-    ? "Nomor Induk Pegawai/NIP"
-    : "Nomor Induk Sekolah/NIS";
-
-  const identityPlaceholder = isAdmin
-    ? "Masukkan NIP"
-    : "Masukkan NIS";
-
-  const identityValue = isAdmin
-    ? form.nip
-    : form.nis;
-
-  const handleIdentityChange = (value) => {
-    if (isAdmin) {
-      updateField("nip", value);
-    } else {
-      updateField("nis", value);
-    }
-  };
   return (
     <div className="settings-root">
       <Header
@@ -222,11 +244,11 @@ export default function Pengaturan() {
         showMenu={true}
         onMenuClick={() => setMenuOpen(true)}
       />
+
       <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <div className="settings-page">
         <div className="settings-container">
-          
           <aside className="settings-sidebar">
             <div className="settings-profile">
               <div className="settings-profile-img">
@@ -235,6 +257,7 @@ export default function Pengaturan() {
 
               <div className="settings-profile-info">
                 <div className="settings-name">{displayName}</div>
+
                 {form.status === "Diterima" ? (
                   <div className="settings-status-verified">
                     <BadgeCheck size={16} />
@@ -260,7 +283,6 @@ export default function Pengaturan() {
             <h1 className="settings-title">Biodata</h1>
 
             <div className="settings-main">
-              {/* AVATAR */}
               <div className="settings-avatar-section">
                 <div
                   className="settings-avatar"
@@ -289,7 +311,6 @@ export default function Pengaturan() {
                 </p>
               </div>
 
-              {/* FORM */}
               <div className="settings-form">
                 <h3 className="settings-subtitle">Informasi Pengguna</h3>
 
@@ -297,39 +318,43 @@ export default function Pengaturan() {
                   label="Nama Lengkap"
                   value={form.namaLengkap}
                   placeholder="Masukkan nama lengkap"
-                  onChange={(v) => updateField("namaLengkap", v)}
+                  onChange={(value) => updateField("namaLengkap", value)}
                 />
 
                 <Field
                   label="Email"
                   value={form.email}
-                  placeholder="Masukkan email"
-                  onChange={(v) => updateField("email", v)}
+                  placeholder="Email tidak dapat diubah"
+                  readOnly
                 />
 
                 <Field
                   label={identityLabel}
                   value={identityValue}
-                  placeholder={identityPlaceholder}
-                  onChange={handleIdentityChange}
+                  placeholder={`${identityLabel} tidak dapat diubah`}
+                  readOnly
                 />
 
                 <Field
                   label="Tanggal Lahir"
                   type="date"
                   value={form.tanggalLahir}
-                  placeholder="Masukkan tanggal lahir (YYYY-MM-DD)"
-                  onChange={(v) => updateField("tanggalLahir", v)}
+                  placeholder="Masukkan tanggal lahir"
+                  onChange={(value) => updateField("tanggalLahir", value)}
                 />
 
                 <RadioField
                   label="Jenis Kelamin"
                   value={form.jenisKelamin}
                   options={["Laki-laki", "Perempuan"]}
-                  onChange={(v) => updateField("jenisKelamin", v)}
+                  onChange={(value) => updateField("jenisKelamin", value)}
                 />
 
-                <button className="settings-save" onClick={handleSave}>
+                <button
+                  type="button"
+                  className="settings-save"
+                  onClick={() => setConfirmOpen(true)}
+                >
                   Simpan Perubahan
                 </button>
               </div>
@@ -337,45 +362,69 @@ export default function Pengaturan() {
           </section>
         </div>
       </div>
-    </div>
-  );
-}
 
-function Field({ label, value, placeholder, onChange, type = "text" }) {
-  return (
-    <div className="settings-field">
-      <label>{label}</label>
-      <input
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
+      <ConfirmModal
+        open={confirmOpen}
+        title="Simpan perubahan profil?"
+        message="Perubahan pada nama, tanggal lahir, jenis kelamin, dan foto profil akan disimpan."
+        cancelText="Batal"
+        confirmText="Simpan"
+        type="primary"
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={async () => {
+          await handleSave();
+          setConfirmOpen(false);
+        }}
       />
     </div>
   );
 }
 
-function RadioField({
+function Field({
   label,
   value,
-  options = [],
+  placeholder,
   onChange,
+  type = "text",
+  readOnly = false,
 }) {
   return (
     <div className="settings-field">
       <label>{label}</label>
 
+      <input
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        readOnly={readOnly}
+        className={readOnly ? "is-readonly" : ""}
+        onChange={(e) => {
+          if (!readOnly && onChange) {
+            onChange(e.target.value);
+          }
+        }}
+      />
+    </div>
+  );
+}
+
+function RadioField({ label, value, options = [], onChange }) {
+  return (
+    <div className="settings-field">
+      <label>{label}</label>
+
       <div className="settings-radio-group">
-        {options.map((opt) => (
-          <label key={opt} className="settings-radio">
+        {options.map((option) => (
+          <label key={option} className="settings-radio">
             <input
               type="radio"
               name={label}
-              value={opt}
-              checked={value === opt}
+              value={option}
+              checked={value === option}
               onChange={(e) => onChange(e.target.value)}
             />
-            <span>{opt}</span>
+
+            <span>{option}</span>
           </label>
         ))}
       </div>

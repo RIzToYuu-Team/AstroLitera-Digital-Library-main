@@ -3,27 +3,54 @@ import "./AdminUserDataPage.css";
 import { useToast } from "../../components/Toast";
 import Header from "../../components/Header";
 import SideMenu from "../../components/SideMenu";
+import ConfirmModal from "../../components/ConfirmModal";
 import { Navigate } from "react-router-dom";
 import { getSessionUser, clearSessionUser } from "../../utils/session";
 import { supabase } from "../../utils/supabaseClient";
 import defaultAvatar from "../../assets/default-avatar.jpg";
 
-const tabs = ["Menunggu Persetujuan", "Anggota Aktif"];
+const TABS = ["Menunggu Persetujuan", "Anggota Aktif"];
+const STATUS_OPTIONS = ["Semua Status", "Diterima", "Pending", "Ditolak"];
+const ITEMS_PER_PAGE = 10;
 
-const statusOptions = ["Semua Status", "Diterima", "Pending", "Ditolak"];
+function normalizeStatus(status) {
+  return String(status || "").trim().toLowerCase();
+}
+
+function getStatusClassName(status) {
+  const normalized = normalizeStatus(status);
+
+  if (normalized === "diterima") return "is-approved";
+  if (normalized === "ditolak") return "is-rejected";
+  return "is-pending";
+}
+
+function formatDate(value) {
+  if (!value) return "-";
+
+  try {
+    return new Date(value).toLocaleDateString("id-ID");
+  } catch {
+    return "-";
+  }
+}
 
 export default function AdminUserDataPage() {
   const sessionUser = getSessionUser();
   const showToast = useToast();
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("Menunggu Persetujuan");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua Status");
   const [currentPage, setCurrentPage] = useState(1);
+
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
-  const itemsPerPage = 10;
+
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmUser, setConfirmUser] = useState(null);
 
   if (sessionUser?.role !== "Admin") {
     return <Navigate to="/home" />;
@@ -32,6 +59,41 @@ export default function AdminUserDataPage() {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, query, statusFilter]);
+
+  const confirmConfig = useMemo(() => {
+    if (!confirmAction || !confirmUser) return null;
+
+    const username = confirmUser.username || "pengguna ini";
+
+    if (confirmAction === "approve") {
+      return {
+        title: "Setujui pengguna ini?",
+        message: `Akun "${username}" akan diterima sebagai anggota aktif.`,
+        confirmText: "Setujui",
+        type: "primary",
+      };
+    }
+
+    if (confirmAction === "reject") {
+      return {
+        title: "Tolak pengguna ini?",
+        message: `Akun "${username}" akan ditandai sebagai ditolak.`,
+        confirmText: "Tolak",
+        type: "danger",
+      };
+    }
+
+    return {
+      title: "Hapus pengguna ini?",
+      message: `Data "${username}" akan dihapus permanen, termasuk foto profil dan kartu perpustakaan jika ada.`,
+      confirmText: "Hapus",
+      type: "danger",
+    };
+  }, [confirmAction, confirmUser]);
 
   async function fetchUsers() {
     try {
@@ -43,62 +105,70 @@ export default function AdminUserDataPage() {
       if (error) throw error;
 
       setUsers(data || []);
-
     } catch (err) {
       console.error(err);
       showToast?.("error", "Gagal memuat data pengguna");
-    } finally {
-      setCurrentPage(1);
     }
   }
 
   const filteredUsers = useMemo(() => {
-    let result = [...users];
+    const lowerQuery = query.trim().toLowerCase();
 
-    if (query.trim()) {
-      const lowerQuery = query.toLowerCase();
+    return users.filter((item) => {
+      const status = normalizeStatus(item.status);
 
-      result = result.filter(
-        (item) =>
-          item.username?.toLowerCase().includes(lowerQuery) ||
-          String(item.nis || "")
-            .toLowerCase()
-            .includes(lowerQuery) ||
-          String(item.nip || "")
-            .toLowerCase()
-            .includes(lowerQuery)
-      );
-    }
+      const matchesQuery =
+        !lowerQuery ||
+        (item.username || "").toLowerCase().includes(lowerQuery) ||
+        String(item.nis || "").toLowerCase().includes(lowerQuery) ||
+        String(item.nip || "").toLowerCase().includes(lowerQuery);
 
-    if (activeTab === "Menunggu Persetujuan") {
-      result = result.filter(
-        (item) => item.status === "Pending"
-      );
-    }
+      const matchesTab =
+        activeTab === "Menunggu Persetujuan"
+          ? status === "pending"
+          : status === "diterima" || status === "ditolak";
 
-    if (activeTab === "Anggota Aktif") {
-      result = result.filter(
-        (item) =>
-          item.status === "Diterima" ||
-          item.status === "Ditolak"
-      );
-    }
+      const matchesStatus =
+        statusFilter === "Semua Status" ||
+        status === normalizeStatus(statusFilter);
 
-    if (statusFilter !== "Semua Status") {
-      result = result.filter(
-        (item) => item.status === statusFilter
-      );
-    }
-
-    return result;
+      return matchesQuery && matchesTab && matchesStatus;
+    });
   }, [users, activeTab, query, statusFilter]);
 
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
+  const safeCurrentPage = Math.min(currentPage, totalPages || 1);
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentUsers = filteredUsers.slice(startIndex, endIndex);
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  function openConfirm(action, user) {
+    setConfirmAction(action);
+    setConfirmUser(user);
+  }
 
-  const currentUser = filteredUsers.slice(startIndex, endIndex);
+  function closeConfirm() {
+    setConfirmAction(null);
+    setConfirmUser(null);
+  }
+
+  async function runConfirmedAction() {
+    if (!confirmAction || !confirmUser) return;
+
+    if (confirmAction === "approve") {
+      await handleApproveUser(confirmUser);
+    }
+
+    if (confirmAction === "reject") {
+      await handleRejectUser(confirmUser);
+    }
+
+    if (confirmAction === "delete") {
+      await handleDeleteUser(confirmUser);
+    }
+
+    closeConfirm();
+  }
 
   function handleViewUser(user) {
     setSelectedUser(user);
@@ -110,67 +180,91 @@ export default function AdminUserDataPage() {
     setShowViewModal(false);
   }
 
-  async function handleApproveUser(id) {
+  async function handleApproveUser(user) {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({
-          status: "Diterima"
-        })
-        .eq("id", id);
+        .update({ status: "Diterima" })
+        .eq("id", user.id);
 
       if (error) throw error;
-      showToast?.("success", "Pengguna berhasil diterima", 3000);
-      fetchUsers();
 
+      setUsers((prev) =>
+        prev.map((item) =>
+          item.id === user.id ? { ...item, status: "Diterima" } : item
+        )
+      );
+
+      showToast?.("success", "Pengguna berhasil diterima", 3000);
     } catch (err) {
       console.error(err);
       showToast?.("error", "Gagal menyetujui pengguna", 3000);
     }
   }
 
-  async function handleDeleteUser(user) {
-    const confirmed = window.confirm(`Yakin ingin menghapus pengguna "${user.username}"?`);
+  async function handleRejectUser(user) {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ status: "Ditolak" })
+        .eq("id", user.id);
 
-    if (!confirmed) return;
+      if (error) throw error;
+
+      setUsers((prev) =>
+        prev.map((item) =>
+          item.id === user.id ? { ...item, status: "Ditolak" } : item
+        )
+      );
+
+      showToast?.("success", "Pengguna berhasil ditolak", 3000);
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal menolak pengguna", 3000);
+    }
+  }
+
+  function getStoragePath(value, bucketName) {
+    if (!value) return "";
+
+    if (!value.startsWith("http://") && !value.startsWith("https://")) {
+      return value;
+    }
 
     try {
+      const url = new URL(value);
+      const marker = `/storage/v1/object/public/${bucketName}/`;
+      const index = url.pathname.indexOf(marker);
+
+      if (index === -1) return "";
+
+      return decodeURIComponent(
+        url.pathname.slice(index + marker.length)
+      );
+    } catch {
+      return "";
+    }
+  }
+
+  async function removeStorageFile(bucketName, value) {
+    const path = getStoragePath(value, bucketName);
+    if (!path) return;
+
+    const { error } = await supabase.storage
+      .from(bucketName)
+      .remove([path]);
+
+    if (error) throw error;
+  }
+
+  async function handleDeleteUser(user) {
+    try {
       if (user.foto_profil) {
-
-        const isStorageFile =
-          user.foto_profil.includes(
-            "/storage/v1/object/public/foto_profil/"
-          );
-
-        if (isStorageFile) {
-          const fotoPath = user.foto_profil
-            .split("/foto_profil/")[1]
-            ?.split("?")[0];
-
-          if (fotoPath) {
-            const { error: fotoError } = await supabase.storage
-              .from("foto_profil")
-              .remove([fotoPath]);
-
-            if (fotoError) {
-              throw fotoError;
-            }
-          }
-        }
+        await removeStorageFile("foto_profil", user.foto_profil);
       }
 
       if (user.kartu_perpustakaan) {
-        const kartuPath = user.kartu_perpustakaan;
-        const { data, error } = await supabase.storage
-          .from("kartu_perpustakaan")
-          .remove([kartuPath]);
-
-        console.log(data);
-
-        if (error) {
-          console.error(error);
-          throw error;
-        }
+        await removeStorageFile("kartu_perpustakaan", user.kartu_perpustakaan);
       }
 
       const { error } = await supabase
@@ -178,38 +272,23 @@ export default function AdminUserDataPage() {
         .delete()
         .eq("id", user.id);
 
+      if (error) throw error;
+
       const currentSession = getSessionUser();
 
       if (currentSession?.id === user.id) {
         clearSessionUser();
+        window.dispatchEvent(new Event("session-changed"));
       }
 
-      if (error) throw error;
-      setUsers((prev) =>
-        prev.filter((item) => item.id !== user.id)
-      );
+      setUsers((prev) => prev.filter((item) => item.id !== user.id));
 
-      showToast?.(
-        "success",
-        "User berhasil dihapus",
-        3000
-      );
-
+      showToast?.("success", "User berhasil dihapus", 3000);
     } catch (err) {
       console.error(err);
-      showToast?.(
-        "error",
-        err.message || "Gagal menghapus user",
-        3000
-      );
+      showToast?.("error", err.message || "Gagal menghapus user", 3000);
     }
   }
-
-  const getStatusClassName = (status) => {
-    if (status === "Diterima") return "is-approved";
-    if (status === "Ditolak") return "is-rejected";
-    return "is-pending";
-  };
 
   function getKartuUrl(value) {
     if (!value) return "";
@@ -230,7 +309,9 @@ export default function AdminUserDataPage() {
       <Header
         showSearch={false}
         showMenu={true}
-        onMenuClick={() => setMenuOpen(true)} />
+        onMenuClick={() => setMenuOpen(true)}
+      />
+
       <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <main className="admin-user-content">
@@ -255,7 +336,7 @@ export default function AdminUserDataPage() {
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
             >
-              {statusOptions.map((option) => (
+              {STATUS_OPTIONS.map((option) => (
                 <option key={option} value={option}>
                   {option}
                 </option>
@@ -266,7 +347,7 @@ export default function AdminUserDataPage() {
 
         <section className="admin-user-panel">
           <div className="admin-user-tabs">
-            {tabs.map((tab) => (
+            {TABS.map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -293,28 +374,33 @@ export default function AdminUserDataPage() {
               </thead>
 
               <tbody>
-                {filteredUsers.length > 0 ? (
-                  currentUser.map((item, index) => (
+                {currentUsers.length > 0 ? (
+                  currentUsers.map((item, index) => (
                     <tr key={item.id}>
                       <td>
-                        <span className="admin-user-order">{startIndex + index + 1}</span>
+                        <span className="admin-user-order">
+                          {startIndex + index + 1}
+                        </span>
                       </td>
+
                       <td>
                         <img
                           className="admin-user-avatar"
                           src={item.foto_profil || defaultAvatar}
-                          alt={item.username}
+                          alt={item.username || "User"}
                         />
                       </td>
+
                       <td>
                         <strong className="admin-user-name">
-                          {item.username}
+                          {item.username || "-"}
                         </strong>
                       </td>
+
                       <td>{item.nis || item.nip || "-"}</td>
-                      <td>
-                        {new Date(item.created_at).toLocaleDateString("id-ID")}
-                      </td>
+
+                      <td>{formatDate(item.created_at)}</td>
+
                       {activeTab === "Anggota Aktif" && (
                         <td>
                           <span
@@ -322,26 +408,27 @@ export default function AdminUserDataPage() {
                               item.status
                             )}`}
                           >
-                            {item.status}
+                            {item.status || "-"}
                           </span>
                         </td>
                       )}
+
                       <td>
                         <div className="admin-user-actions">
+                          <button
+                            type="button"
+                            className="is-view"
+                            onClick={() => handleViewUser(item)}
+                          >
+                            Lihat
+                          </button>
+
                           {activeTab === "Menunggu Persetujuan" ? (
                             <>
                               <button
                                 type="button"
-                                className="is-view"
-                                onClick={() => handleViewUser(item)}
-                              >
-                                Lihat
-                              </button>
-
-                              <button
-                                type="button"
                                 className="is-approve"
-                                onClick={() => handleApproveUser(item.id)}
+                                onClick={() => openConfirm("approve", item)}
                               >
                                 Setujui
                               </button>
@@ -349,29 +436,19 @@ export default function AdminUserDataPage() {
                               <button
                                 type="button"
                                 className="is-delete"
-                                onClick={() => handleDeleteUser(item)}
+                                onClick={() => openConfirm("reject", item)}
                               >
                                 Tolak
                               </button>
                             </>
                           ) : (
-                            <>
-                              <button
-                                type="button"
-                                className="is-view"
-                                onClick={() => handleViewUser(item)}
-                              >
-                                Lihat
-                              </button>
-
-                              <button
-                                type="button"
-                                className="is-delete"
-                                onClick={() => handleDeleteUser(item)}
-                              >
-                                Hapus
-                              </button>
-                            </>
+                            <button
+                              type="button"
+                              className="is-delete"
+                              onClick={() => openConfirm("delete", item)}
+                            >
+                              Hapus
+                            </button>
                           )}
                         </div>
                       </td>
@@ -388,78 +465,6 @@ export default function AdminUserDataPage() {
                 )}
               </tbody>
             </table>
-            {showViewModal && selectedUser && (
-              <div className="admin-user-view-overlay">
-                <div className="admin-user-view-card">
-                  <button
-                    type="button"
-                    className="admin-user-view-close"
-                    onClick={closeViewModal}
-                  >
-                    ×
-                  </button>
-
-                  <aside className="admin-user-view-sidebar">
-                    <div className="admin-user-view-profile">
-                      <div className="admin-user-view-avatar">
-                        <img
-                          src={selectedUser.foto_profil || defaultAvatar}
-                          alt={selectedUser.username || "User"}
-                        />
-                      </div>
-
-                      <div>
-                        <h2>{selectedUser.username || "Anonim"}</h2>
-                        <p>{selectedUser.status || "Status tidak tersedia"}</p>
-                      </div>
-                    </div>
-                  </aside>
-
-                  <section className="admin-user-view-content">
-                    <h1>Detail Pengguna</h1>
-
-                    <div className="admin-user-view-grid">
-                      <ViewField
-                        label="NIS"
-                        value={selectedUser.nis || "-"}
-                      />
-
-                      <ViewField
-                        label="Nama"
-                        value={selectedUser.username || "-"}
-                      />
-
-                      <ViewField
-                        label="Kelas"
-                        value={selectedUser.kelas || "-"}
-                      />
-
-                      <ViewField
-                        label="Email"
-                        value={selectedUser.email || "-"}
-                      />
-
-                      <div className="admin-user-view-field admin-user-view-kartu">
-                        <label>Kartu Perpustakaan</label>
-
-                        {selectedUser.kartu_perpustakaan ? (
-                          <div className="admin-user-view-kartu-preview">
-                            <img
-                              src={getKartuUrl(selectedUser.kartu_perpustakaan)}
-                              alt={`Kartu perpustakaan ${selectedUser.username || ""}`}
-                            />
-                          </div>
-                        ) : (
-                          <div className="admin-user-view-value">
-                            Tidak ada kartu perpustakaan
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </section>
-                </div>
-              </div>
-            )}
           </div>
 
           <footer className="admin-user-footer">
@@ -474,8 +479,10 @@ export default function AdminUserDataPage() {
             <div className="admin-user-pagination">
               <button
                 type="button"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.max(prev - 1, 1))
+                }
+                disabled={safeCurrentPage === 1}
               >
                 ‹
               </button>
@@ -484,7 +491,7 @@ export default function AdminUserDataPage() {
                 <button
                   key={i + 1}
                   type="button"
-                  className={currentPage === i + 1 ? "is-active" : ""}
+                  className={safeCurrentPage === i + 1 ? "is-active" : ""}
                   onClick={() => setCurrentPage(i + 1)}
                 >
                   {i + 1}
@@ -494,9 +501,11 @@ export default function AdminUserDataPage() {
               <button
                 type="button"
                 onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  setCurrentPage((prev) =>
+                    Math.min(prev + 1, totalPages)
+                  )
                 }
-                disabled={currentPage >= totalPages || totalPages === 0}
+                disabled={safeCurrentPage >= totalPages || totalPages === 0}
               >
                 ›
               </button>
@@ -504,7 +513,77 @@ export default function AdminUserDataPage() {
           </footer>
         </section>
       </main>
-    </div >
+
+      {showViewModal && selectedUser && (
+        <div className="admin-user-view-overlay">
+          <div className="admin-user-view-card">
+            <button
+              type="button"
+              className="admin-user-view-close"
+              onClick={closeViewModal}
+            >
+              ×
+            </button>
+
+            <aside className="admin-user-view-sidebar">
+              <div className="admin-user-view-profile">
+                <div className="admin-user-view-avatar">
+                  <img
+                    src={selectedUser.foto_profil || defaultAvatar}
+                    alt={selectedUser.username || "User"}
+                  />
+                </div>
+
+                <div>
+                  <h2>{selectedUser.username || "Anonim"}</h2>
+                  <p>{selectedUser.status || "Status tidak tersedia"}</p>
+                </div>
+              </div>
+            </aside>
+
+            <section className="admin-user-view-content">
+              <h1>Detail Pengguna</h1>
+
+              <div className="admin-user-view-grid">
+                <ViewField label="NIS" value={selectedUser.nis || "-"} />
+                <ViewField label="Nama" value={selectedUser.username || "-"} />
+                <ViewField label="Kelas" value={selectedUser.kelas || "-"} />
+                <ViewField label="Email" value={selectedUser.email || "-"} />
+
+                <div className="admin-user-view-field admin-user-view-kartu">
+                  <label>Kartu Perpustakaan</label>
+
+                  {selectedUser.kartu_perpustakaan ? (
+                    <div className="admin-user-view-kartu-preview">
+                      <img
+                        src={getKartuUrl(selectedUser.kartu_perpustakaan)}
+                        alt={`Kartu perpustakaan ${selectedUser.username || ""
+                          }`}
+                      />
+                    </div>
+                  ) : (
+                    <div className="admin-user-view-value">
+                      Tidak ada kartu perpustakaan
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      )}
+
+      <ConfirmModal
+        open={Boolean(confirmConfig)}
+        title={confirmConfig?.title}
+        message={confirmConfig?.message}
+        cancelText="Batal"
+        confirmText={confirmConfig?.confirmText}
+        type={confirmConfig?.type}
+        onCancel={closeConfirm}
+        onConfirm={runConfirmedAction}
+      />
+    </div>
   );
 }
 
