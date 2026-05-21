@@ -1,28 +1,76 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./DetailBuku.css";
-import { ArrowLeft, Star, Bookmark, BookOpen, Info, MessageSquare, Trash2, } from "lucide-react";
+import {
+  ArrowLeft,
+  Star,
+  Bookmark,
+  BookOpen,
+  Info,
+  MessageSquare,
+  Trash2,
+} from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import { useToast } from "../components/Toast";
 import RequestAccessPopup from "../components/RequestAccessPopup";
+import ConfirmModal from "../components/ConfirmModal";
 import { supabase } from "../utils/supabaseClient";
 import { getSessionUser } from "../utils/session";
+
+function normalizeStatus(status) {
+  return String(status || "").trim().toLowerCase();
+}
+
+function isBorrowStillValid(borrow) {
+  if (!borrow?.return_date) return true;
+  return new Date(borrow.return_date) >= new Date();
+}
 
 function DetailBuku() {
   const showToast = useToast();
   const navigate = useNavigate();
   const { id } = useParams();
+
   const sessionUser = getSessionUser();
   const isAdmin = sessionUser?.role === "Admin";
+
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [tab, setTab] = useState("sinopsis");
   const [requestOpen, setRequestOpen] = useState(false);
+
   const [bookmarked, setBookmarked] = useState(false);
   const [wishlistId, setWishlistId] = useState(null);
+
   const [reviews, setReviews] = useState([]);
   const [newComment, setNewComment] = useState("");
-  const [borrowStatus, setBorrowStatus] = useState(null);
+
   const [borrowData, setBorrowData] = useState(null);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [reviewToDelete, setReviewToDelete] = useState(null);
+
+  const borrowStatus = normalizeStatus(borrowData?.status);
+
+  const genreList = useMemo(() => {
+    if (!book?.genre) return [];
+
+    return String(book.genre)
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }, [book]);
+
+  const isPelajaranBook = useMemo(() => {
+    const category = book?.category || book?.kategori || "";
+    return String(category).trim().toLowerCase() === "pelajaran";
+  }, [book]);
+
+  const isReadButtonDisabled =
+    !isPelajaranBook &&
+    book?.stock <= 0 &&
+    !(borrowStatus === "diterima" && isBorrowStillValid(borrowData));
 
   useEffect(() => {
     fetchBook();
@@ -34,93 +82,19 @@ function DetailBuku() {
     }
   }, [id]);
 
-  async function fetchBorrowStatus() {
-    try {
-      const { data, error } = await supabase
-        .from("borrow")
-        .select("*")
-        .eq("user_id", sessionUser.id)
-        .eq("book_id", id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      setBorrowData(data || null);
-      setBorrowStatus(data?.status || null);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  function isBorrowStillValid(borrow) {
-    if (!borrow?.return_date) return true;
-    const now = new Date();
-    const returnDate = new Date(borrow.return_date);
-    return returnDate >= now;
-  }
-
-  function isPelajaranBook() {
-    return String(book?.category || book?.kategori || "")
-      .toLowerCase()
-      .trim() === "pelajaran";
-  }
-
-  function handleReadBook() {
-    if (!sessionUser?.id) {
-      showToast?.("error", "Silakan login terlebih dahulu");
-      navigate("/login");
-      return;
-    }
-
+  function goToReader() {
     if (!book?.file_url) {
       showToast?.("error", "File buku belum tersedia");
       return;
     }
 
-    if (isPelajaranBook()) {
-      navigate("/bookReader", {
-        state: {
-          pdfSrc: book.file_url,
-          title: book.title,
-          bookId: book.id,
-        },
-      });
-
-      return;
-    }
-
-    if (borrowStatus === "Diterima" && isBorrowStillValid(borrowData)) {
-      navigate("/bookReader", {
-        state: {
-          pdfSrc: book.file_url,
-          title: book.title,
-          bookId: book.id,
-        },
-      });
-
-      return;
-    }
-
-    if (borrowStatus === "Pending") {
-      showToast?.(
-        "info",
-        "Permintaan akses buku ini masih menunggu persetujuan admin"
-      );
-      return;
-    }
-
-    if (borrowStatus === "Ditolak") {
-      showToast?.(
-        "info",
-        "Permintaan sebelumnya ditolak. Kamu bisa mengajukan ulang"
-      );
-      setRequestOpen(true);
-      return;
-    }
-
-    setRequestOpen(true);
+    navigate("/bookReader", {
+      state: {
+        pdfSrc: book.file_url,
+        title: book.title,
+        bookId: book.id,
+      },
+    });
   }
 
   async function fetchBook() {
@@ -144,7 +118,30 @@ function DetailBuku() {
     }
   }
 
+  async function fetchBorrowStatus() {
+    if (!sessionUser?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("borrow")
+        .select("*")
+        .eq("user_id", sessionUser.id)
+        .eq("book_id", id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      setBorrowData(data || null);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   async function fetchWishlistStatus() {
+    if (!sessionUser?.id) return;
+
     try {
       const { data, error } = await supabase
         .from("wishlist")
@@ -155,15 +152,32 @@ function DetailBuku() {
 
       if (error) throw error;
 
-      if (data) {
-        setBookmarked(true);
-        setWishlistId(data.id);
-      } else {
-        setBookmarked(false);
-        setWishlistId(null);
-      }
+      setBookmarked(Boolean(data));
+      setWishlistId(data?.id || null);
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  async function fetchReviews() {
+    try {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select(`
+          *,
+          profiles:user_id (
+            username
+          )
+        `)
+        .eq("book_id", id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      setReviews(data || []);
+    } catch (err) {
+      console.error(err);
+      showToast?.("error", "Gagal memuat ulasan");
     }
   }
 
@@ -211,25 +225,131 @@ function DetailBuku() {
     }
   }
 
-  async function fetchReviews() {
+  function handleReadBook() {
+    if (!sessionUser?.id) {
+      showToast?.("error", "Silakan login terlebih dahulu");
+      navigate("/login");
+      return;
+    }
+
+    if (isPelajaranBook) {
+      goToReader();
+      return;
+    }
+
+    if (borrowStatus === "diterima") {
+      if (isBorrowStillValid(borrowData)) {
+        goToReader();
+        return;
+      }
+
+      showToast?.(
+        "info",
+        "Masa akses buku sudah habis. Kamu bisa mengajukan ulang"
+      );
+      setRequestOpen(true);
+      return;
+    }
+
+    if (borrowStatus === "pending") {
+      showToast?.(
+        "info",
+        "Permintaan akses buku ini masih menunggu persetujuan admin"
+      );
+      return;
+    }
+
+    if (borrowStatus === "ditolak") {
+      showToast?.(
+        "info",
+        "Permintaan sebelumnya ditolak. Kamu bisa mengajukan ulang"
+      );
+      setRequestOpen(true);
+      return;
+    }
+
+    setRequestOpen(true);
+  }
+
+  async function submitAccessRequest() {
+    if (!sessionUser?.id) {
+      showToast?.("error", "Silakan login terlebih dahulu");
+      navigate("/login");
+      return;
+    }
+
     try {
+      const { data: existing, error: checkError } = await supabase
+        .from("borrow")
+        .select("*")
+        .eq("user_id", sessionUser.id)
+        .eq("book_id", book.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      const existingStatus = normalizeStatus(existing?.status);
+      const borrowDate = new Date().toISOString();
+
+      if (existingStatus === "pending") {
+        showToast?.("info", "Kamu sudah mengajukan akses buku ini");
+        setRequestOpen(false);
+        return;
+      }
+
+      if (existingStatus === "diterima" && isBorrowStillValid(existing)) {
+        showToast?.("success", "Akses buku ini sudah diterima");
+        setRequestOpen(false);
+        return;
+      }
+
+      if (existingStatus === "ditolak" || existingStatus === "diterima") {
+        const { data, error } = await supabase
+          .from("borrow")
+          .update({
+            status: "Pending",
+            borrow_date: borrowDate,
+            return_date: null,
+          })
+          .eq("id", existing.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        setBorrowData(data);
+        showToast?.("success", "Permintaan akses berhasil diajukan ulang");
+        setRequestOpen(false);
+        return;
+      }
+
       const { data, error } = await supabase
-        .from("reviews")
-        .select(`
-          *,
-          profiles:user_id (
-            username
-          )
-        `)
-        .eq("book_id", id)
-        .order("created_at", { ascending: false });
+        .from("borrow")
+        .insert([
+          {
+            user_id: sessionUser.id,
+            book_id: book.id,
+            status: "Pending",
+            borrow_date: borrowDate,
+            return_date: null,
+          },
+        ])
+        .select()
+        .single();
 
       if (error) throw error;
 
-      setReviews(data || []);
+      setBorrowData(data);
+      showToast?.("success", "Permintaan akses berhasil diajukan");
+      setRequestOpen(false);
     } catch (err) {
       console.error(err);
-      showToast?.("error", "Gagal memuat ulasan");
+      showToast?.(
+        "error",
+        err.message || "Gagal mengajukan akses buku"
+      );
     }
   }
 
@@ -268,19 +388,28 @@ function DetailBuku() {
     }
   }
 
-  async function deleteUlasan(reviewId) {
-    const confirmed = window.confirm("Hapus ulasan ini?");
-    if (!confirmed) return;
+  function openDeleteReviewConfirm(review) {
+    setReviewToDelete(review);
+    setConfirmOpen(true);
+  }
+
+  function closeDeleteReviewConfirm() {
+    setReviewToDelete(null);
+    setConfirmOpen(false);
+  }
+
+  async function deleteUlasan(review) {
+    if (!review?.id) return;
 
     try {
       const { error } = await supabase
         .from("reviews")
         .delete()
-        .eq("id", reviewId);
+        .eq("id", review.id);
 
       if (error) throw error;
 
-      setReviews((prev) => prev.filter((item) => item.id !== reviewId));
+      setReviews((prev) => prev.filter((item) => item.id !== review.id));
       showToast?.("success", "Ulasan berhasil dihapus");
     } catch (err) {
       console.error(err);
@@ -288,61 +417,22 @@ function DetailBuku() {
     }
   }
 
-  async function submitAccessRequest() {
-    if (!sessionUser?.id) {
-      showToast?.("error", "Silakan login terlebih dahulu");
-      navigate("/login");
-      return;
+  function getReadButtonText() {
+    if (isPelajaranBook) return "Baca Buku";
+
+    if (borrowStatus === "diterima" && isBorrowStillValid(borrowData)) {
+      return "Baca Buku";
     }
 
-    try {
-      const { data: existing, error: checkError } = await supabase
-        .from("borrow")
-        .select("*")
-        .eq("user_id", sessionUser.id)
-        .eq("book_id", book.id)
-        .in("status", ["Pending", "Diterima"])
-        .maybeSingle();
-
-      if (checkError) throw checkError;
-
-      if (existing?.status === "Pending") {
-        showToast?.("info", "Kamu sudah mengajukan akses buku ini");
-        setRequestOpen(false);
-        return;
-      }
-
-      if (existing?.status === "Diterima") {
-        showToast?.("success", "Akses buku ini sudah diterima");
-        setRequestOpen(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("borrow")
-        .insert([
-          {
-            user_id: sessionUser.id,
-            book_id: book.id,
-            status: "Pending",
-            borrow_date: new Date().toISOString(),
-            return_date: null,
-          },
-        ])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setBorrowData(data);
-      setBorrowStatus(data.status);
-      showToast?.("success", "Permintaan akses berhasil diajukan");
-      setRequestOpen(false);
-    } catch (err) {
-      console.error(err);
-      showToast?.("error", "Anda hanya bisa meminjam satu buku dalam satu waktu");
+    if (borrowStatus === "diterima" && !isBorrowStillValid(borrowData)) {
+      return "Ajukan Ulang";
     }
-    return;
+
+    if (borrowStatus === "pending") return "Menunggu Persetujuan";
+
+    if (borrowStatus === "ditolak") return "Ajukan Ulang";
+
+    return "Ajukan Akses";
   }
 
   if (loading) {
@@ -352,10 +442,6 @@ function DetailBuku() {
   if (!book) {
     return <div className="detail-container">Buku tidak ditemukan.</div>;
   }
-
-  const genreList = book.genre
-    ? String(book.genre).split(",").map((item) => item.trim())
-    : [];
 
   return (
     <div className="detail-container">
@@ -375,7 +461,7 @@ function DetailBuku() {
 
             <div className="detail-rating">
               <Star size={18} fill="#f5c518" color="#f5c518" />
-              <span>{reviews.length > 0 ? reviews.length : "0"} ulasan</span>
+              <span>{reviews.length} ulasan</span>
             </div>
 
             <span className="status">
@@ -383,9 +469,9 @@ function DetailBuku() {
             </span>
 
             <div className="genre-row">
-              {genreList.map((g, i) => (
-                <span key={i} className="genre">
-                  {g}
+              {genreList.map((genre) => (
+                <span key={genre} className="genre">
+                  {genre}
                 </span>
               ))}
             </div>
@@ -395,13 +481,14 @@ function DetailBuku() {
               className="bookmark-btn"
               onClick={toggleBookmark}
               fill={bookmarked ? "#f1c232" : "none"}
-              color={bookmarked ? "#f1c232" : "#f1c232"}
+              color="#f1c232"
               style={{ cursor: "pointer" }}
             />
           </div>
 
           <div className="tabs">
             <button
+              type="button"
               className={`tab-btn ${tab === "sinopsis" ? "active" : ""}`}
               onClick={() => setTab("sinopsis")}
             >
@@ -409,6 +496,7 @@ function DetailBuku() {
             </button>
 
             <button
+              type="button"
               className={`tab-btn ${tab === "info" ? "active" : ""}`}
               onClick={() => setTab("info")}
             >
@@ -416,6 +504,7 @@ function DetailBuku() {
             </button>
 
             <button
+              type="button"
               className={`tab-btn ${tab === "ulasan" ? "active" : ""}`}
               onClick={() => setTab("ulasan")}
             >
@@ -423,7 +512,11 @@ function DetailBuku() {
             </button>
           </div>
 
-          <div className={`content-box ${tab === "ulasan" ? "ulasan-mode" : "normal-mode"}`}>
+          <div
+            className={`content-box ${
+              tab === "ulasan" ? "ulasan-mode" : "normal-mode"
+            }`}
+          >
             {tab === "sinopsis" && (
               <p className="sinopsis">
                 {book.synopsis || "Sinopsis belum tersedia."}
@@ -482,33 +575,42 @@ function DetailBuku() {
                     onChange={(e) => setNewComment(e.target.value)}
                   />
 
-                  <button className="kirim-ulasan-btn" onClick={kirimUlasanBaru}>
+                  <button
+                    type="button"
+                    className="kirim-ulasan-btn"
+                    onClick={kirimUlasanBaru}
+                  >
                     Kirim Ulasan
                   </button>
                 </div>
 
                 {reviews.length > 0 ? (
-                  reviews.map((u) => (
-                    <div key={u.id} className="ulasan-item">
+                  reviews.map((review) => (
+                    <div key={review.id} className="ulasan-item">
                       <div className="ulasan-header">
                         <div className="profile-circle" />
 
                         <div>
                           <p className="nama">
-                            {u.profiles?.username || "Anonim"}
+                            {review.profiles?.username || "Anonim"}
                           </p>
 
-                          <p className="komentar">{u.review}</p>
+                          <p className="komentar">{review.review}</p>
 
                           <div className="ulasan-actions">
-                            {(sessionUser?.id === u.user_id || isAdmin) && (
-                              <span
+                            {(sessionUser?.id === review.user_id || isAdmin) && (
+                              <button
+                                type="button"
                                 className="hapus-btn"
-                                onClick={() => deleteUlasan(u.id)}
-                                title={isAdmin && sessionUser?.id !== u.user_id ? "Hapus ulasan user" : "Hapus ulasan"}
+                                onClick={() => openDeleteReviewConfirm(review)}
+                                title={
+                                  isAdmin && sessionUser?.id !== review.user_id
+                                    ? "Hapus ulasan user"
+                                    : "Hapus ulasan"
+                                }
                               >
                                 <Trash2 size={16} color="#ff4444" />
-                              </span>
+                              </button>
                             )}
                           </div>
                         </div>
@@ -523,21 +625,12 @@ function DetailBuku() {
 
             {tab !== "ulasan" && (
               <button
+                type="button"
                 className="read-btn"
                 onClick={handleReadBook}
-                disabled={
-                  !isPelajaranBook() &&
-                  book.stock <= 0 &&
-                  borrowStatus !== "Diterima"
-                }
+                disabled={isReadButtonDisabled}
               >
-                {isPelajaranBook()
-                  ? "Baca Buku"
-                  : borrowStatus === "Diterima" && isBorrowStillValid(borrowData)
-                    ? "Baca Buku"
-                    : borrowStatus === "Pending"
-                      ? "Menunggu Persetujuan"
-                      : "Ajukan Akses"}
+                {getReadButtonText()}
               </button>
             )}
           </div>
@@ -550,7 +643,24 @@ function DetailBuku() {
         onClose={() => setRequestOpen(false)}
         onSubmit={submitAccessRequest}
       />
+
+      <ConfirmModal
+        open={confirmOpen}
+        title="Yakin ingin menghapus ulasan ini?"
+        message="Ulasan akan dihapus secara permanen dan tidak dapat dipulihkan kembali."
+        cancelText="Batal"
+        confirmText="Hapus"
+        type="danger"
+        onCancel={closeDeleteReviewConfirm}
+        onConfirm={async () => {
+          if (!reviewToDelete) return;
+
+          await deleteUlasan(reviewToDelete);
+          closeDeleteReviewConfirm();
+        }}
+      />
     </div>
   );
 }
+
 export default DetailBuku;
