@@ -271,6 +271,20 @@
   font-weight: 700;
 }
 
+.is-delete, .is-reject, .is-approve,
+.admin-access-expired {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 74px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #eef2f7;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 @media (max-width: 960px) {
   .admin-access-page {
     flex-direction: column;

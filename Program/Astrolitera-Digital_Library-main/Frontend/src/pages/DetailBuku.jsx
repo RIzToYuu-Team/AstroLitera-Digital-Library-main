@@ -340,7 +340,7 @@ function DetailBuku() {
       setRequestOpen(false);
     } catch (err) {
       console.error(err);
-      showToast?.("error", "Gagal mengajukan akses buku");
+      showToast?.("error", "Anda hanya bisa meminjam satu buku dalam satu waktu");
     }
     return;
   }
